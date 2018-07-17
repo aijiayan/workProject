@@ -1,0 +1,620 @@
+#parse('tmpl/global_constant.vm')
+#set($body_class = "")
+#set($pageTitle="分享优惠券")
+#set($layout = "layout/layout.vm" )
+#set($app_banner='<div class="recommendown">
+    <a class="openapp-live openapplink" href="http://m.vmei.com/app?s=wechatBanner">
+        <div class="logo">
+            <img src="https://assets.vmei.com/system/wechat/images/new-logo.png?rr=22" width="100%">
+            <div class="desc">
+                <p>开启你的美妆世界</p>
+            </div>
+        </div>
+        <div class="down">立即打开</div>
+    </a>
+</div>')
+
+#set($custom_css ="
+<link rel='stylesheet' type='text/css' href='$assets_static/css/showoff.css?ver=$!version'>")
+#set($custom_css = "<link rel='stylesheet' type='text/css' href='$assets_static/css/home.css?g=33&ver=$!version'>")
+<script src="https://s.mlinks.cc/scripts/dist/mlink.min.js"></script>
+
+#set($custom_head = "
+<style type='text/css'>
+    #couponHeader { background: url(${mp_assets_static}wechat/images/coupon/background.png);background-repeat: no-repeat;background-size: 100% 100%; -moz-background-size: 100% 100%; display: flex;flex-wrap: nowrap; flex-direction: column; height: 260px;align-items: center;  }
+    #userAvatar {margin-top: 2.7rem;border-radius: 50%;width: 4.6rem;height: 4.6rem;overflow: hidden; }
+    #userAvatar img{width: 100%;}
+    #userNickname { margin-top: 5px; color: white; font-size: 13px; }
+    #couponArea { background: url(${mp_assets_static}wechat/images/coupon/coupon.png); background-repeat: no-repeat;background-size: 100% 100%; -moz-background-size: 100% 100%; margin-top: 6px;display: flex; height: 130px;  }
+    #couponInfo { display: flex;flex-direction: column;justify-content: center; align-items: center;width: 180px;  }
+    #getAllTicket {width: 115px;display: flex; flex-direction: column;color: white; font-size: 19px; justify-content: center;  }
+    .two-row-hide {display: -webkit-box; -webkit-box-orient: vertical;-webkit-line-clamp: 2; overflow: hidden;  }
+    #minusNum {font-size: 48px;  }
+    #minusNumArea {color: #d93549;line-height: 1.2;}
+    #fullNum { font-size: 13px;color: #999999;}
+    #timeRange { color: #999999;font-size: 13px; }
+   .ticketRemind{width: 4.6rem;vertical-align:top;margin-right: 1.4rem;}
+   .pic{background: #fff;}
+   .topic .colume-list .cell{border-bottom: none;}
+   .hasBorder{border-bottom: 1px solid #e7e7e7;}
+   .recommend{text-align: center;font-size: 20px;color: #FF661F;line-height: 4.4rem;}
+   .recommend img{margin-right: 5px;}
+    #userAvatar,#userNickname{display: none;}
+    .colume-list .product .title{height: 3.6rem;}
+    .colume-list .cell{width: 50%;}
+    .lineHeight{display: flex;align-items: center;}
+</style>
+")
+<script>
+    var winWidth = document.documentElement.clientWidth;
+    var htmlWidth = (winWidth / 320) * 10;
+    if (htmlWidth > 20) {
+        htmlWidth = 20;
+    }
+    document.documentElement.style.fontSize = htmlWidth + 'px';
+</script>
+<script type="text/javascript">
+    -1 != window.location.search.indexOf("ios") ? document.querySelector(".recommendown").style.display = "none" : ! function() {
+                var f, g, c = window.location.href,
+                        d = c.lastIndexOf("/") + 1,
+                        e = c.lastIndexOf("ios");
+                linkid = -1 != e ? "" + parseInt(c.substring(d, e - 1).match(/^\d+/g)) : "" + parseInt(c.substring(d, c.length).match(/^\d+/g)), f = document.querySelector("a.openapplink"), g = [{ mlink: "http://a.mlinks.cc/AaXE", button: f, params: { callType: "web", actLinkStr: "", weburl: c + "?ios" } }], new Mlink(g)
+            }();
+</script>
+
+<main id="main" role="main">
+
+    <div id="share_info" style="position: absolute; top:-9999px;width: 0;height: 0;z-index:-1;overflow: hidden;">
+        <div id="share_title">送你一张唯美优惠券</div><!--分享主标题-->
+        <div id="share_description">【唯美优惠券】$!{coupon.denomination}元唯美优惠券(#if($!{coupon.price}=="0.00")无门槛#else满$!{coupon.price}元使用#end),#if($!{coupon.type}=="SHOP")全场通用#elseif($!{coupon.type}=="PRODUCT")指定商品#elseif($!{coupon.type}=="BRAND")品牌限定#else指定品类#end</div><!--分享副标题-->
+        <div id="share_pic"><img src="https://img01.vmei.com/201804/75A8549AE0924C7EB78AB22B389E3E8C.png@750w" alt="唯美美妆"/></div><!--分享小图片-->
+    </div>
+
+    <div id="couponHeader">
+        <div id="userAvatar">
+            <img class="lazy" src="$!{user.headPicUrl}">
+        </div>
+        <div id="userNickname">
+            $!user.nickName
+        </div>
+
+        <div id="couponArea">
+            <div id="couponInfo">
+                <div id="minusNumArea">
+                    <span style="font-size: 25px">&yen;</span> <span id="minusNum">$!coupon.denomination</span>
+                </div>
+                <div id="fullNum">
+                    满&yen;<span>$!coupon.price</span>使用
+                </div>
+                <div id="timeRange">
+                    $!{coupon.startTime}-$!{coupon.endTime}
+                </div>
+            </div>
+
+            <div id="getAllTicket">
+                <span style="text-align: left;padding-left: 5px;">立即领券</span>
+            </div>
+        </div>
+    </div>
+
+    <div id="viewProduct" style="padding-bottom: 20px;border-bottom: 2px dotted #D9D9D9;background-color: #fff;"></div>
+
+    <div class='loadMore' id="loadProduct" style=''><a class='loadButton loading' href='#'></a></div>
+
+    <script type="text/html" id="viewProductTemp">
+        <section class="topicGroup topic" style="margin-top: 0;">
+            <div class="product-list colume-list list">
+                {{ if dataList.length > 0 }}
+                {{each dataList as item}}
+                <div class="cell">
+                    <article class="product">
+                        <a href="/product/{{item.productId}}.html">
+                            <div class="pic">
+                                <img src="{{item.picture}}@640w_90Q" data-original="{{item.picture}}@640w_90Q" alt="">
+                            </div>
+                            <div style="width: 70%;" class="hasBorder">
+                                <h3 class="title">{{item.name}}</h3>
+                                <div class="label">
+                                  {{each item.function as label}}
+                                    <span>{{label}}</span>
+                                  {{/each}}
+                                </div>
+                                <div class="other">
+                                    <div class="mainpriceNew">
+                                        <span class="price counterPrice" style="font-size: 14px!important;">现价：￥{{item.price}}</span>
+                                    </div>
+
+                                </div>
+                                <div class="other mod_pricebox_inline">
+                                    <div class="mainpriceNew lineHeight">
+                                        <img src="$assets_static/images/ticketRemind.png" class="ticketRemind"/>
+                                        <span class="price" data-unit="¥" style="color: #FF4400!important;font-size: 24px!important;">{{item.preferentialPrice}}</span>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </a>
+                    </article>
+                </div>
+                {{/each}}
+                {{/if}}
+            </div>
+        </section>
+    </script>
+
+
+    <section class="topicGroup" style="margin-top: 0;">
+        <div class="recommend">
+            <span><img src="$assets_static/images/xm.png" alt=""><img src="$assets_static/images/sm.png" alt=""></span>
+            <span>猜你喜欢</span>
+            <span><img src="$assets_static/images/sm.png" alt=""><img src="$assets_static/images/xm.png" alt=""></span>
+        </div>
+        <div class="product-list colume-list list">
+            <div id="viewRecommend"></div>
+        </div>
+    </section>
+
+
+
+    <script type="text/html" id="viewRecommendTemp">
+        {{if dataList.length > 0 }}
+        {{each dataList as item}}
+        <div class="cell">
+            <article class="product">
+                <a href="/product/{{item.productId}}.html">
+                    <div class="pic">
+                        <img class="lazy" src="{{item.pictureUrl}}@300w_300h_80Q.src" data-original="{{item.pictureUrl}}@300w_300h_80Q.src">
+                    </div>
+                    <div style="width: 100%;">
+                        <h3 class="title">{{item.name}}</h3>
+                        <div class="label">
+                            {{each item.function as label}}
+                            <span>{{label}}</span>
+                            {{/each}}
+                        </div>
+                        <div class="other mod_pricebox_inline">
+                            <div class="mainpriceNew">
+                                <span class="price" data-unit="¥" style="color: #FF4056!important;font-size: 20px!important;">{{item.marketPrice}}</span>
+                            </div>
+                        </div>
+                        <div class="other one-row-hide">
+                            {{if item.shippingFree=='true'}}
+                            <span class="free">包邮</span>
+                            {{/if}}
+                            {{if item.activityName.length>0}}
+                            <span class="limit"> {{item.activityName[0]}}</span>
+                            {{/if}}
+                            {{if item.postCount>0}}
+                            <span class="exp">{{item.postCount}}篇心得</span>
+                            {{/if}}
+                        </div>
+                    </div>
+                </a>
+            </article>
+        </div>
+        {{/each}}
+        {{/if}}
+    </script>
+
+    <div class='loadMore' id="loadRecommend" style=''><a class='loadButton loading' href='#'></a></div>
+
+</main>
+
+</body>
+</html>
+
+#parse("tmpl/script.parse.vm")
+<script type='text/javascript' src='$domain_assets/libs/artTemplate/3.0/template.js'></script>
+<script type='text/javascript' src='$domain_assets/libs/sfm/0.2/common/scrollLoad.js'></script>
+<!-- 数据上报 -->
+<script type="text/javascript">
+    try {
+        SFM.Stats().init("from_wechat");
+        SFM.PageLoad().updatePageLoadEndTimestamp();
+        SFM.Stats().upload(30, url('path'));
+        if (url('path') === '/') {
+            SFM.Stats().upload(40, null);
+        }
+    } catch (e) {
+        console.log(e);
+    }
+</script>
+
+<script type='text/javascript'>
+
+    $(function(){
+        var domain = 'https://m.vmei.com'
+//        var domain = 'http://m.sephome.cn'
+
+        var getUuid=function () {
+            var uuidArr=window.location.href.split("/"),
+                    len=uuidArr.length-1,
+                    uuid='';
+            if(window.location.href.indexOf("?")>0){
+                var paramArr=uuidArr[len].split('?');
+                uuid=paramArr[0];
+            }else {
+                uuid=uuidArr[len];
+            }
+            return uuid;
+        }
+
+        var share_uuid=getUuid();
+
+        function oInfoactivity(){
+            this.onapp = false;
+            this.shareImageURL = $('#share_pic img').attr('src');
+            this.shareURL =domain + '/coupon/info/'+share_uuid+'?usKey=$!{coupon.loginUsKey}';
+            this.shareTitle = $('#share_title').text();
+            this.descContent = $('#share_description').text();
+            this.uuid=share_uuid;
+            this.locationhref = domain + '/login?action=defaultBind&backUrl=' + domain + '/coupon/info/'+share_uuid+'?usKey=$!{coupon.loginUsKey}';
+            this.isLoginWeChat = false;
+            this.isBtnShareAction = false;
+            this.hasUsKey=false;
+            this.recommendPageNo=1;
+            this.hasRecommendNext=true;
+            this.isLoadingRecommendContent=false;
+            this.productPageNo=1;
+            this.hasProductNext=true;
+            this.isLoadingproductContent=false;
+            this.hasLoadProduct=false;
+            this.usKey=SFM.getQueryString('usKey') || '';
+        }
+
+        oInfoactivity.prototype = {
+            constructor: oInfoactivity,
+            init: function() {
+                this.getUuid();
+                this.differstate();
+                this.loadBody();
+                this.bindEvent();
+                this.share();
+                this.bodyonload();
+                this.updata();
+                commonStart.removeRefresh();
+            },
+            getUuid:function () {
+               if(this.usKey&&this.usKey!=''){
+                   this.hasUsKey=true;
+               }
+//               console.log(this.uuid,this.usKey,this.hasUsKey);
+            },
+            loadBody:function(){
+                if(this.hasUsKey){
+                    $("#userAvatar").show();
+                    $("#userNickname").show();
+                    $("#couponArea").css("marginTop","6px");
+                }else {
+                    $("#couponArea").css("marginTop","65px");
+                }
+                var price=Math.round($("#minusNum").text());
+                $("#minusNum").text(price);
+                this.loadmoreProduct();
+            },
+            differstate: function() {
+                var ua = navigator.userAgent.toLowerCase();
+                if (/sephome/.test(ua) || /唯美美妆/.test(ua)) {
+                    this.onapp = true;
+                    this.app();
+                } else {
+                    this.weChat();
+                }
+            },
+            bindEvent:function () {
+##                var url='/coupon/info/'+this.uuid+'?usKey=$!{loginUsKey}';
+##                console.log(url);
+
+                var self = this;
+                var winH = $(window).height();
+                $(window).resize(function () {
+                    winH = $(window).height();
+                });
+                $(document).scroll(function () {
+                    var docH = $(this).height(), docST = $(this).scrollTop();
+                    if(!self.hasLoadProduct){
+                        if((docST + winH + 550) >= docH && self.hasProductNext && self.isLoadingProductContent == false) {
+                            self.isLoadingProductContent = true;
+                            self.productPageNo++;
+                            setTimeout(function () {
+                                self.loadmoreProduct();
+                            }, 50)
+                        }
+                    }else {
+                        if ((docST + winH + 550) >= docH && self.hasRecommendNext && self.isLoadingRecommendContent == false) {
+                            self.isLoadingRecommendContent = true;
+                            self.recommendPageNo++;
+                            setTimeout(function () {
+                                self.loadmoreRecommend();
+                            }, 50)
+                        }
+
+                    }
+                });
+            },
+            loadmoreProduct:function () {
+                var self=this;
+                var data={};
+                data.pageNo=this.productPageNo;
+                data.pageSize=10;
+                $.ajax({
+                    type: 'GET',
+                    url: '/coupon/product/'+self.uuid,
+                    data:data,
+                    timeout: 20000,
+                }).done(function(response) {
+                    if(!response){
+                        $("#loadProduct").hide();
+                        self.hasLoadProduct=true;
+                        self.loadmoreRecommend();
+                        return
+                    }
+                    if(response.success) {
+                        if(response.data.dataList.length<5){
+                            self.hasProductNext=false;
+                            self.hasLoadProduct=true;
+                            $("#loadProduct").hide();
+                            self.loadmoreRecommend();
+                        }
+                        self.isLoadingProductContent=false;
+                        var data = response.data ? response.data : {};
+                        var temp = template('viewProductTemp',data);
+                        $('#viewProduct').append(temp);
+                        $("div.hasBorder:last").css("border","none");
+                    } else {
+                        commonStart.tip(response.msg, 'warninig');
+                        if(self.productPageNo==1){
+                            $("#viewProduct").css({"padding-bottom":"0px","border":"none"});
+                        }
+                        $("#loadProduct").hide();
+                        self.hasLoadProduct=true;
+                        self.loadmoreRecommend();
+                    }
+                });
+
+            },
+            loadmoreRecommend:function () {
+                var self=this;
+                var data={};
+                data.pageNo=this.recommendPageNo;
+                data.pageSize=20;
+                $.ajax({
+                    type: 'GET',
+                    url: '/product/recommend',
+                   data:data,
+                    timeout: 20000,
+                }).done(function(response) {
+                    if(!response){
+                        $("#loadRecommend").hide();
+                        return
+                    }
+                    if(response.success) {
+                        if(response.data.dataList.length<20){
+                            self.hasRecommendNext=false;
+                            $("#loadRecommend").hide();
+                        }
+                        self.isLoadingRecommendContent=false;
+                        var data = response.data ? response.data : {};
+                        var temp = template('viewRecommendTemp',data);
+                        $('#viewRecommend').append(temp);
+                    } else {
+                        commonStart.tip(response.msg, 'warninig');
+                    }
+                });
+
+
+            },
+            app: function() {
+                var self = this;
+                function connectWebViewJavascriptBridgeshow(callback) {
+                    if (window.WebViewJavascriptBridge) {
+                        callback(WebViewJavascriptBridge);
+                    } else {
+                        document.addEventListener('WebViewJavascriptBridgeReady', function() {
+                            callback(WebViewJavascriptBridge);
+                        }, false);
+                    }
+                };
+
+                connectWebViewJavascriptBridgeshow(function(bridge) {
+
+                    bridge.init(function(message, callBack) {
+//                        message.shareAction == 'success' ? self.getAllTicket() : '';
+                        if (message.ss) {
+                            self.getLoginSS(message.ss, function(res) {
+                                if(!res.success) {
+                                    self.isBtnShareAction ?
+                                            bridge.callHandler('loginBack', { 'needLogin': true }, function(response) {}) : '';
+                                } else {
+                                    self.isLoginWeChat = true;
+                                }
+                            });
+                        }
+                    });
+                    // 初始化页面尝试登录wechat系统
+                    $('#getAllTicket').on('click', function () {
+                        if(self.isLoginWeChat) {
+                            self.getAllTicket()
+                        } else {
+                            self.isGetCouponAction = true
+                            bridge.callHandler('loginBack', { 'needSendSS': true }, function(response) {});
+                        }
+
+                    })
+
+                    bridge.callHandler('loginBack', { 'needSendSS': true }, function(response) {});
+                    var options = {
+                        callType: 'needSharePage',
+                        params: {
+                            shareTitle: self.shareTitle,
+                            shareContent: self.descContent,
+                            sharePic: self.shareImageURL,
+                            shareUrl: self.shareURL
+                        }
+                    };
+                    bridge.callHandler('AppJSBack', options, function(response) {});
+                });
+            },
+            getLoginSS: function(token, succCb) {
+                try {
+                    $.ajax({
+                        url: domain + '/login/d?ss=' + token,
+                        type: 'POST',
+                        xhrFields: { withCredentials: true },
+                        crossDomain: true,
+                        success: function(res) {
+                            succCb(res)
+                        },
+                        error: function(e) {
+                            console.warn('getLoginSS error:', e);
+                            alert('登录失败，请返回重试 ');
+                        }
+                    });
+                } catch (ex) {
+                    console.warn('getLoginSS catch err:', ex);
+                }
+            },
+            getAllTicket: function(){
+//                var uuids = []
+//                this.ticketData.forEach(function(ticket, index) {
+//                    uuids.push(ticket.uuid);
+//                })
+//                uuids = uuids.join(',');
+                var uuids=this.uuid;
+                if (uuids == '') {
+                    commonStart.tip('优惠券已失效', 'error');
+                    return false;
+                }
+                this.loadcouponapp(uuids);
+            },
+            weChat: function() {
+                var self = this;
+                this.loginInWeb();
+                $('#getAllTicket').on('click', function () {
+                    self.isLoginWeChat ? self.getAllTicket() : window.location.href = self.locationhref;
+                })
+
+                $('#toshare').on('click', function () {
+                    $(this).hide();
+                });
+            },
+            loginInWeb: function(callBack) {
+                var self = this;
+                $.ajax({
+                    type: 'POST',
+                    url: domain + '/heySephome',
+                    xhrFields: {
+                        withCredentials: true
+                    },
+                    crossDomain: true
+                }).done(function(response) {
+                    if (response.data.loggedIn) {
+                        self.isLoginWeChat = true;
+                        callBack ? callBack() : '';
+                    }
+                })
+            },
+            loadcouponapp: function(uuid) {
+                var self = this;
+                commonStart.loadingBox('获取中~');
+                $.ajax({
+                    type: 'POST',
+                    url: domain + '/user/coupon/receiveByUuidLimit',
+                    data: { uuid: uuid },
+                    xhrFields: { withCredentials: true },
+                    crossDomain: true
+                }).done(function(response) {
+                    commonStart.removeLoadingBoxAsync(function() {
+                        if (response.success) {
+                            commonStart.tip('亲，券已送到！', 'success');
+                        } else {
+                            commonStart.tip(response.msg, 'error');
+                        }
+                    });
+                });
+            },
+            share: function() {
+                var _this = this;
+//                console.log(_this.shareURL);
+                commonStart.weixinShare({
+                    lineLink: _this.shareURL,
+                    imgUrl: _this.shareImageURL,
+                    descContent: _this.descContent,
+                    shareTitle: _this.shareTitle,
+                    success: function() {
+                        _this.getAllTicket()
+                    },
+                    cancel: function() {
+                        commonStart.tip('分享失败', 'warninig');
+                    }
+                });
+            },
+            bodyonload: function() {
+                try {
+                    SFM.Stats().init('from_wechat');
+                    SFM.PageLoad().updatePageLoadEndTimestamp();
+                    SFM.Stats().upload(30, url('path'));
+                    if (url('path') === '/') {
+                        SFM.Stats().upload(40, null);
+                    }
+                } catch (e) {
+                    console.log(e);
+                }
+
+                (function() {
+                    var _search = window.location.search;
+                    var _isInapp = false;
+
+                    function pageLoaded() {
+                        var tagBody = document.getElementsByTagName('html')[0];
+                        if (tagBody.className.indexOf('loaded') == -1) {
+                            tagBody.className += " loaded";
+                        }
+                        tagBody.className = tagBody.className.replace('loading', '');
+                    }
+                    if (document.addEventListener) {
+                        window.addEventListener('load', pageLoaded, false);
+                    } else {
+                        window.attachEvent('onload', pageLoaded);
+                    }
+                    setTimeout(function() {
+                        pageLoaded();
+                    }, 2000);
+                })();
+            },
+            updata: function() {
+                var getQueryString = function(name, source) {
+                    var reg = new RegExp('(^|\\?|&)' + name + '=([^&]*)(&|$)', 'i'),
+                            source = source || window.location.search,
+                            r = source.match(reg);
+                    if (r != null) return decodeURIComponent(r[2]);
+                    return null;
+                };
+
+                var mpbatchno = getQueryString('mpbatchno');
+                if (mpbatchno && /^20\d{6}$/i.test(mpbatchno)) {
+
+                    var mparticleno = getQueryString('mparticleno');
+                    $.ajax({
+                        url: 'https://m.vmei.com/upMpArticleAccess',
+                        type: 'POST',
+                        data: { link: window.location.href, mpbatchno: mpbatchno, mparticleno: mparticleno },
+                        success: function(result) {
+                            if (!result.success) {}
+                        },
+                        error: function() {
+                            console.log('error..');
+                        }
+                    });
+                }
+            }
+        };
+        var initPage = new oInfoactivity();
+        initPage.init();
+    });
+</script>
+
+
+
+
+

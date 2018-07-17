@@ -1,0 +1,919 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no">
+    <title>思芙美运营支撑系统</title>
+    <meta name="description" content="">
+    <meta name="keywords" content="">
+    <link href="" rel="stylesheet">
+    <link href="https://cdn.bootcss.com/element-ui/1.4.6/theme-default/index.css" rel="stylesheet">
+    <style type="text/css">
+        html {overflow-y: scroll;}
+        body {width: 100vw;overflow: hidden;background: #fff;font-size: 12px;}
+        * {margin: 0; padding: 0;}
+        a{text-decoration: none;}
+        a:hover {color: #333;text-decoration: underline;}
+        .flex {display: flex; }
+        .two-row-hide { display: -webkit-box;-webkit-box-orient: vertical; -webkit-line-clamp: 2;overflow: hidden;  }
+        .one-row-hide { overflow: hidden;text-overflow: ellipsis;white-space: nowrap;}
+
+        img {width: 60px; height: 50px; margin: 2px;}
+        /*loading logo*/
+        .loading {width: 100%; height:100%; background: rgba(255,255,255,.4); position: fixed; top: 0; left: 0; z-index: 100000 !important;
+            display: none;}
+        .spinner {width: 32px;height: 32px; position: relative; top: 50%; left: 50%; transform: translate3d(-50%, -50%, 0);}
+        .cube1, .cube2 {background-color: deepskyblue;  width: 30px; height: 30px; position: absolute; top: 0; left: 0; -webkit-animation:
+                cubemove 1.8s infinite ease-in-out; animation: cubemove 1.8s infinite ease-in-out; }
+        .cube2 {-webkit-animation-delay: -0.9s; animation-delay: -0.9s; }
+        @-webkit-keyframes cubemove {
+            25% { -webkit-transform: translateX(42px) rotate(-90deg) scale(0.5) }
+            50% { -webkit-transform: translateX(42px) translateY(42px) rotate(-180deg) }
+            75% { -webkit-transform: translateX(0px) translateY(42px) rotate(-270deg) scale(0.5) }
+            100% { -webkit-transform: rotate(-360deg) }
+        }
+        @keyframes cubemove {
+            25% {
+                transform: translateX(42px) rotate(-90deg) scale(0.5);
+                -webkit-transform: translateX(42px) rotate(-90deg) scale(0.5);
+            } 50% {
+                  transform: translateX(42px) translateY(42px) rotate(-179deg);
+                  -webkit-transform: translateX(42px) translateY(42px) rotate(-179deg);
+              } 50.1% {
+                    transform: translateX(42px) translateY(42px) rotate(-180deg);
+                    -webkit-transform: translateX(42px) translateY(42px) rotate(-180deg);
+                } 75% {
+                      transform: translateX(0px) translateY(42px) rotate(-270deg) scale(0.5);
+                      -webkit-transform: translateX(0px) translateY(42px) rotate(-270deg) scale(0.5);
+                  } 100% {
+                        transform: rotate(-360deg);
+                        -webkit-transform: rotate(-360deg);
+                    }
+        }
+
+        /*start*/
+        input{font-size: 12px!important;}
+        /*.condition .el-col{display:flex;align-items: center;}*/
+        .noWrap{white-space: nowrap;}
+        .el-date-editor{width: 185px!important;}
+
+        .el-input .el-input__inner{width: 150px;height: 30px;}
+        .el-select input::-webkit-input-placeholder{color:#333;}
+        .el-select input:-moz-placeholder{color:#333;}
+        .el-table .cell, .el-table th>div{padding:12px;font-size: 12px;}
+        td{vertical-align:top!important;}
+        input.input-xs{width:50px;height: 20px;line-height: 1;background: #fff;border-radius: 5px;border: 1px solid #bfcbd9;color: #1f2d3d;outline: 0;padding: 3px 8px;}
+        .outStock .el-checkbox__inner{width: 28px;height: 28px;}
+        .outStock .el-checkbox__inner::after{height: 10px;left: 10px;top: 6px;}
+        .red{color:#ff4949;}
+
+        /*doit*/
+        .banner{padding-left: 50px;font-size: 14px; border-bottom:1px solid #eee;}
+        .banner .el-row{height: 40px;line-height: 40px;}
+        .banner span{font-weight:700;color:#20A0FF;}
+        .banner .succ{color:#13CE66;cursor: pointer;}
+        .search{margin-top: 50px;}
+        .search .el-row{margin-bottom: 20px;}
+        .search .width200 .el-input__inner{width: 190px;}
+        .productShow{overflow-x: auto;}
+        .productShow a{color:#337ab7;}
+        .hg40{line-height: 40px}
+        .pageCon{margin-top: 20px;text-align: right;margin-right: 30px;}
+        span.green{font-weight:700;color:#13CE66;}
+        .noBottom .el-tabs__header{margin-bottom: 0;}
+        .noBottom .el-table th>.cell{text-align: center;}
+        .noBottom .el-table .cell, .el-table th>div{padding: 10px;}
+        .noBottom .el-dialog{width: 1000px!important;}
+        .width600 .el-dialog{width: 600!important;}
+        .specialSale p{height: 45px;display: flex;align-items: center;justify-content: center;}
+        .el-loading-mask{background-color: rgba(0,0,0,.8);}
+    </style>
+</head>
+<body>
+<!-- 由Vue管理 -->
+<div id="app">
+    <!-- loading logo -->
+    <div class="loading" id="fullScreenLoading">
+        <div class="spinner">
+            <div class="cube1"></div>
+            <div class="cube2"></div>
+        </div>
+    </div>
+
+    <!-- header-->
+    <div class="banner">
+
+        <el-row>
+            <el-col :span="6">自今天SKU真实库存低于5的商品数：<span>{{stockInfoList.todayStorageLess}}</span></el-col>
+            <el-col :span="6">自昨天SKU真实库存低于5的商品数：<span>{{stockInfoList.yestodayStorageLess}}</span></el-col>
+            <el-col :span="6">最近7天下架商品数：<span>{{stockInfoList.thisWeekOfflineNums}}</span></el-col>
+            <el-col :span="6">SKU真实库存低于5的商品数：<span>{{stockInfoList.storageLess}}</span></el-col>
+        </el-row>
+
+        <el-row>        ##doing
+            <el-col :span="6">今天/昨天上下架商品数：<span @click="handleTwoDayOffline"><span class="succ">{{stockInfoList.todayOfflineNums}} /</span><span class="succ"> {{stockInfoList.yestodayOfflineNums}}</span></span> </el-col>
+            <el-col :span="6">价格有问题的商品数：<span class="succ" @click="handlePriceProblemProduct">{{stockInfoList.problemNums}}</span></el-col>
+            <el-col :span="6">成本价(部分)未设置的商品数：<span class="succ" @click="handleZeroCostPrice">{{stockInfoList.costProblemNums}}</span></el-col>
+        </el-row>
+
+    </div>
+
+    <!--main-->
+    <div class="search">
+
+        <el-row style="margin-left: 50px;">
+            <el-col :md="5" :lg="4">
+                <el-select v-model="formInline.brandId" filterable placeholder="品牌(请选择)">
+                    <el-option label="品牌(请选择)" :value="null"></el-option>
+                    <el-option v-for="item in brandList" :key="item.brandId" :label="item.name" :value="item.brandId"></el-option>
+                </el-select>
+            </el-col>
+            <el-col :md="5" :lg="4">
+                <el-select v-model="formInline.categoryId" filterable placeholder="类目(请选择)">
+                    <el-option label="类目(请选择)" :value="null"></el-option>
+                    <el-option v-for="item in categoryList" :key="item.id" :label="item.label" :value="item.id"></el-option>
+                </el-select>
+            </el-col>
+            <el-col :md="5" :lg="4">
+                <el-select v-model="formInline.online" filterable placeholder="上下架(请选择)">
+                    <el-option label="上下架(请选择)" :value="null"></el-option>
+                    <el-option v-for="item in option2" :key="item.value" :label="item.lable" :value="item.value"></el-option>
+                </el-select>
+            </el-col>
+            <el-col :md="5" :lg="4">
+                <el-select v-model="formInline.isExistStorage" filterable placeholder="SKU缺货(请选择)">
+                    <el-option label="SKU缺货(请选择)" :value="null"></el-option>
+                    <el-option v-for="item in option3" :key="item.value" :label="item.lable" :value="item.value"></el-option>
+                </el-select>
+            </el-col>
+            <el-col :md="5" :lg="4">
+                <el-select v-model="formInline.locale" filterable placeholder="商品来源(请选择)">
+                    <el-option v-for="item in option1" :key="item.value" :label="item.lable" :value="item.value"></el-option>
+                </el-select>
+            </el-col>
+        </el-row>
+
+        <el-row style="margin-left: 50px;">
+            <el-col :md="5" :lg="4"><el-input v-model="formInline.search" placeholder="商品名称/商品ID"></el-input></el-col>
+            <el-col :md="5" :lg="4"><el-input v-model="formInline.skuBarcode" placeholder="条形码"></el-input> </el-col>
+            <el-col :md="5" :lg="4" class="width200">
+                <el-date-picker @change="changeTime" v-model="offlineTime" type="daterange" range-separator="至" placeholder="下架时间"></el-date-picker>
+            </el-col>
+            <el-col :md="9" :lg="8">
+                <el-button type="primary" size="small" icon="search" style="margin-right: 20px;" @click="handleSearch">查询</el-button>
+                <el-button type="primary" size="small" style="margin-right: 20px;" @click="resetRule(formInline)">重置</el-button>
+                <el-button type="primary" size="small" style="margin-right: 20px;" @click="handleBatchOnline(batchList)">批量上架</el-button>
+                <el-button type="primary" size="small" @click="handleBatchOffline(batchList)">批量下架</el-button>
+            </el-col>
+        </el-row>
+
+    </div>
+
+
+    <!--table-->
+    <el-table  v-loading="loading" element-loading-text="拼命加载中" element-loading-spinner="el-icon-loading" element-loading-background="rgba(0, 0, 0, 0.4)" :data="productList" height="650"   @selection-change="handleSelectionChange" class="productShow" stripe>
+
+        <el-table-column type="selection" size="mini" width="55"></el-table-column>
+        <el-table-column label="商品主图" width="100">
+            <template scope="scope">
+                <div style="text-align: center">
+                    <img :src="scope.row.productImageUrl">
+                </div>
+            </template>
+        </el-table-column>
+        <el-table-column label="商品名称" width="300">
+            <template scope="scope">
+                <p><a :href="'https://www.vmei.com/product/'+scope.row.productId+'.html'" target="_blank">{{scope.row.name}} <span style="color:red;" v-show="scope.row.memo==''?false:true">[备注：{{scope.row.memo}}]</span></a></p>
+                <p style="line-height: 32px;">
+                    商品ID：<a :href="'/product/newIndex/?isShow=1&productId='+scope.row.productId+'&locale=zh_cn'" target="_blank">{{scope.row.productId}}</a>
+                    <span style="color:red;padding-left: 50px;" v-show="scope.row.operator==null?false:true">下架人：{{scope.row.operator}}</span>
+                </p>
+                <p style="color:red;" v-show="scope.row.offLineReason==null?false:true">下架原因：{{scope.row.offLineReason}}</p>
+                <p style="color:red;" v-show="scope.row.offlineTimeString==null?false:true">下架时间：{{scope.row.offlineTimeString}}</p>
+            </template>
+        </el-table-column>
+        <el-table-column label="SKU" width="220">
+            <template scope="scope">
+                <p class="one-row-hide hg40" v-for="(item,index) in scope.row.skuList">{{item.skuDesc}}</p>
+            </template>
+        </el-table-column>
+        <el-table-column label="条形码" width="180">
+            <template scope="scope">
+                <p class="hg40" v-for="(item,index) in scope.row.skuList" >{{item.barCode}}</p>
+            </template>
+        </el-table-column>
+        <el-table-column label="划掉价/默认售价(可编辑) 成本价/在线活动价" width="300">      ##doit
+            <template scope="scope">
+                <p class="hg40" v-for="(item,index) in scope.row.skuList" style="white-space: nowrap;">
+                    <span style="display: inline-block;width: 150px;">
+                        <input class="input-xs" v-if="item.checke1" v-model="item.shoppeSkuPrice"  @blur="handleClickSpan(scope.row,item,'1')"  v-focus></input>
+                        <span v-else  @click="item.checke1=true">{{item.shoppeSkuPrice}}</span>
+                        <span>/</span>
+                        <input class="input-xs" v-if="item.checke2" v-model="item.priceYuan"  @blur="handleClickSpan(scope.row,item,'2')"  v-focus></input>
+                        <span v-else  @click="item.checke2=true">{{item.priceYuan}}</span>
+                    </span>
+                    <span style="display: inline-block;width: 125px;">
+                        <span class="green">{{item.costPrice}}</span><span>/</span><span>{{item.discountPrice}}</span>
+                    </span>
+                </p>
+            </template>
+        </el-table-column>
+        <el-table-column label="东莞/香港(真实库存)" width="140">
+            <template scope="scope">
+                <p style="text-align: center;" class="hg40" v-for="(item,index) in scope.row.skuList" >{{item.dongGuanStorage|checkNull('')}} <span>/</span> {{item.hongKongStorage|checkNull('')}}  </p>
+            </template>
+        </el-table-column>
+        <el-table-column label="是否缺货(缺货状态用户可看不可买)" width="220">
+            <template scope="scope">
+                <p style="text-align: center;" class="hg40" v-for="(item,index) in scope.row.skuList" >
+                    <el-checkbox class="outStock" v-model="item.checke3" @change="handleOutOfStock(scope.row,item)"></el-checkbox>
+                    <el-select v-model="item.outOfStock" filterable placeholder="缺货事由">
+                        <el-option v-for="item in option4" :key="item.value" :label="item.lable" :value="item.value"></el-option>
+                    </el-select>
+                </p>
+            </template>
+        </el-table-column>
+        <el-table-column label="状态 / 操作" width="140">
+            <template scope="scope">
+                <p class="hg40" v-if="scope.row.onlineStatus"><span>已上架</span> | <el-button type="danger" size="small" @click="handleOffline(scope.row)">下架</el-button></p>
+                <p class="hg40" v-else><span class="red">未上架</span> | <el-button type="primary" size="small" @click="handleOnline(scope.row)">上架</el-button></p>
+            </template>
+        </el-table-column>
+        <el-table-column label="活动价格信息">
+            <template scope="scope">
+                <p class="hg40" v-if="scope.row.discountNum=='0'?false:true"><el-button type="danger" size="small" @click="handleActInfo(scope.row)">设置活动价</el-button></p>
+            </template>
+        </el-table-column>
+
+    </el-table>
+
+    <div class="pageCon">      ##doing
+        <el-pagination @current-change="handleChangePage" :current-page="pageTag.pageNo" :page-size="pageTag.pageSize" layout="total,prev, pager, next, jumper" :total="pageTag.totalCount">
+        </el-pagination>
+    </div>
+
+    <!--模态框-->
+    ##下架原因
+    <el-dialog title="下架原因" :visible.sync="offlineModalShow" size="tiny" class="width600">
+        <el-row type="flex" align="middle">
+            <el-input type="textarea" :autosize="{ minRows: 6, maxRows: 10}" placeholder="必须填写内容" v-model="textarea">
+            </el-input>
+        </el-row>
+        <span slot="footer" class="dialog-footer">
+            <el-button @click="offlineModalShow = false">取 消</el-button>
+            <el-button type="primary" @click="batchOffline">确定</el-button>
+        </span>
+    </el-dialog>
+
+    ##设置活动价
+    <el-dialog title="活动信息" :visible.sync="actInfoModalShow"  class="noBottom">
+        <el-tabs v-model="activeName" type="card" @tab-click="handleClick">
+
+            <el-tab-pane label="限时打折" name="first" v-if="saleDiscountList==null?false:true">
+                <el-table :data="saleDiscountList" height="400">
+                    <el-table-column label="sku信息">
+                        <template scope="scope">
+                           <div style="text-align: center;">{{scope.row.skuDesc}}</div>
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="活动名称">
+                        <template scope="scope">
+                            <div style="text-align: center;">{{scope.row.discountName}}</div>
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="活动价格">
+                        <template scope="scope">
+                            <div style="text-align: center;"><el-input v-model="scope.row.discountPrice"></el-input></div>
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="商品来源">
+                        <template scope="scope">
+                            <div style="text-align: center;">{{scope.row.locale}}</div>
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="操作人">
+                        <template scope="scope">
+                            <div style="text-align: center;">
+                                <p>{{scope.row.operator}}</p>
+                                <p>{{scope.row.updateTimeString}}</p>
+                            </div>
+                        </template>
+                    </el-table-column>
+                </el-table>
+                <el-row style="margin-top: 20px;" type="flex" justify="center"><el-button type="danger" @click="handleAmendActivePrice(saleDiscountList)">保存</el-button></el-row>
+            </el-tab-pane>
+
+            <el-tab-pane label="限时特卖" name="second" v-if="flashSaleList==null?false:true" class="specialSale">
+                <el-table :data="doubleSpecialSale" height="400">
+                    <el-table-column label="条形码">
+                        <template scope="scope">
+                            <div style="text-align: center;"><p>{{scope.row.skuBarcode}}</p></div>
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="特卖价" width="180">
+                        <template scope="scope">
+                            <div style="text-align: center;"><p><el-input v-model="scope.row.num"></el-input> </p></div>
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="库存信息" width="100">
+                        <template scope="scope">
+                            <div style="text-align: center;"><p>{{scope.row.storageNum}}</el-input></p></div>
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="已出售" width="100">
+                        <template scope="scope">
+                            <div style="text-align: center;"><p>{{scope.row.sell}}</p></div>
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="开始时间">
+                        <template scope="scope">
+                            <div style="text-align: center;"><p>{{scope.row.startTimeString}}</p></div>
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="结束时间">
+                        <template scope="scope">
+                            <div style="text-align: center;"><p>{{scope.row.endTimeString}}</p></div>
+                        </template>
+                    </el-table-column>
+                </el-table>
+                <el-row style="margin-top: 20px;" type="flex" justify="center"><el-button type="danger" @click="handleSpecialPrice(flashSaleList)">保存</el-button></el-row>
+            </el-tab-pane>
+        </el-tabs>
+        <span slot="footer" class="dialog-footer">
+            <el-button @click="actInfoModalShow= false">取 消</el-button>
+            <el-button type="primary">确定</el-button>
+        </span>
+    </el-dialog>
+
+</div>
+</body>
+<script src="https://cdn.bootcss.com/vue/2.3.4/vue.js"></script>
+<script src="https://cdn.bootcss.com/vue-resource/1.3.4/vue-resource.min.js"></script>
+<script src="https://cdn.bootcss.com/element-ui/1.4.6/index.js"></script>
+<script>
+
+    Vue.http.interceptors.push(function (request, next) {
+        if(request.url == '/beauty/post/notReviewPostCount'){
+            next(function (response) {return response;})
+        }else {
+            document.getElementById('fullScreenLoading').style.display = 'block';
+            next(function (response) {
+                document.getElementById('fullScreenLoading').style.display = 'none';
+                return response;
+            })
+        }
+    })
+
+    // 注册一个全局自定义指令 `v-focus`
+    Vue.directive('focus', {
+        inserted: function (el) {
+            // 聚焦元素
+            el.focus()
+        }
+    })
+
+   var app= new Vue({
+        el: '#app',
+        data: {
+            option1:[{value:'zh_cn',lable:'唯美大陆'},{value:'en_us',lable:'唯美国际'},{value:'zh_hk',lable:'唯美香港'}],
+            option2:[{value:'0',lable:'未上架'},{value:'1',lable:'已上架'}],
+            option3:[{value:'0',lable:'否'},{value:'1',lable:'是'}],
+            option4:[{value:'NORMAL',lable:'缺货事由'},{value:'TINGCHAN',lable:'已停产'},{value:'DUANHUO',lable:'品牌断货'}],
+            pageTag:{
+                pageNo:1,                    //用引号会报错  doing
+                pageSize:15,
+                totalCount:10
+            },
+            stockInfoList:{},                //头部信息
+            brandList:[],
+            loading:true,
+            categoryList:[],
+            productList:[],
+            batchList:[],            //批量操作
+            offline:'',              //单个下架
+            saleDiscountList:[],     //限时打折
+            flashSaleList:[],        // 限时特卖
+            doubleSpecialSale:[],
+            ids:'',                  //ids参数
+            textarea:'',              //下架原因
+            checkOffline:'',          //'0'单个下架 '1'批量下架
+            offlineTime:'',
+            allCheck:'false',
+            searchType:'0',                  //不同情况下分页请求参数
+            offlineModalShow:false,
+            actInfoModalShow:false,         //活动信息展示
+            activeName:'first',                     //tab栏
+            formInline:{
+                pageNo:'',
+                pageSize:'',
+                brandId:'',
+                locale:'zh_cn',
+                categoryId:'',
+                isExistStorage:'',
+                online:'',
+                offLineEndTime:'',
+                offLineStartTime:'',
+                search:'',
+                skuBarcode:'',
+                costPrice:'1',
+                problemProduct:'0',
+                canSearch:'-1'
+            }
+        },
+        created:function(){     //渲染页面触发
+            this.formInline.pageNo=this.pageTag.pageNo;
+            this.formInline.pageSize=this.pageTag.pageSize;
+            this.stockInfoRequest();
+            this.brandInfoRequest();
+            this.cateGoryInfoRequest();
+            this.searchProductRequest(this.formInline);
+        },
+        methods:{
+            handleSelectionChange:function(val){
+                this.batchList = val;
+            },
+            changeTime:function (val) {
+                var timeArr=val.split('至');
+                this.formInline.offLineStartTime=timeArr[0];
+                this.formInline.offLineEndTime=timeArr[1];
+            },
+            resetRule:function (data) {                    //重置
+                data.brandId='';
+                data.locale='';
+                data.categoryId='';
+                data.isExistStorage='';
+                data.online='';
+                data.search='';
+                data.skuBarcode='';
+                this.offlineTime='';
+            },
+            stockInfoRequest:function () {
+                this.$http.post('/product/publishPlatform/stockInfo')
+                        .then(function(res){
+                            var res=res.body;
+                            if(res.success){
+                                this.stockInfoList=res.data.data;
+                            }else{
+                                this.$message({
+                                    message:res.msg,
+                                    type:"warning"
+                                })
+                            }
+                        })
+            },
+            brandInfoRequest:function () {
+                this.$http.post('/product/publishPlatform/brandList')
+                        .then(function(res){
+                            var res=res.body;
+                            if(res.success){
+                                this.brandList=res.data.brandList;
+                            }else{
+                                this.$message({
+                                    message:res.msg,
+                                    type:"warning"
+                                })
+                            }
+                        })
+            },
+            cateGoryInfoRequest:function () {
+                this.$http.post('/product/publishPlatform/categoryList')
+                        .then(function(res){
+                            var res=res.body;
+                            if(res.success){
+                                this.categoryList=res.data.categoryList;
+                            }else{
+                                this.$message({
+                                    message:res.msg,
+                                    type:"warning"
+                                })
+                            }
+                        })
+            },
+            searchProductRequest:function (data) {                      //商品展示     doit
+                var self=this;
+                this.$http.post('/product/publishPlatform/search',data,{emulateJSON:true})
+                        .then(function(res){
+                            var res=res.body;
+                            if(res.success){
+                                this.$message({
+                                    message:res.msg,
+                                    type:"success"
+                                });
+                                this.loading=false;
+                                this.pageTag.pageNo=res.data.pageNo;
+                                this.pageTag.totalCount=res.data.total;
+                                this.productList=this.iterProduct(res.data.data);
+                            }else{
+                                this.$message({
+                                    message:res.msg,
+                                    type:"warning"
+                                })
+                            }
+                        })
+
+            },
+            iterProduct:function (products) {                       //遍历商品信息     todo
+                var productArr=[];
+                products.forEach(function(item,index){
+                    var product={};
+                    product.checked=false;
+                    product.productImageUrl=item.productImageUrl;
+                    product.name=item.name;
+                    product.memo=item.memo;
+                    product.productId=item.productId;
+                    product.operator=item.operator;
+                    product.offlineTimeString=item.offlineTimeString;
+                    product.offLineReason=item.offLineReason;
+                    product.skuList=item.skuList;
+                    product.onlineStatus=item.onlineStatus;
+                    product.discountNum=item.discountNum;
+                    product.skuList.forEach(function (item,index) {
+                        item.checke1=false;
+                        item.checke2=false;
+                        if(item.storageState=='0'){
+                            item.checke3=false;
+                        }else{
+                            item.checke3=true;
+                        }
+                        item.costPrice=(item.costPrice/100).toFixed(2);
+                        item.shoppeSkuPrice=(item.shoppeSkuPrice/100).toFixed(2);
+                        item.checkShoppeSkuPrice=item.shoppeSkuPrice;
+                        item.checkPriceYuan=item.priceYuan;
+                        item.discountPrice=(item.discountPrice/100).toFixed(2);
+                    })
+                    productArr.push(product);
+                });
+                return productArr;
+            },
+            handleChangePage:function(val){                             //翻页        doing
+                if(this.pageTag.pageNo==val){                           //重复请求判断
+                    return false;
+                }
+                this.formInline.pageNo=val;
+//                console.log(this.pageTag.pageNo,val);
+                switch (this.searchType){
+                    case '0':
+                        this.searchProductRequest(this.formInline);
+                        break;
+                    case '1':
+                        this.twoDayOfflineProduct();
+                        break;
+                    case '2':
+                        this.priceProblemProduct();
+                        break;
+                    case '3':
+                        this.zeroCostPrice();
+                        break;
+                }
+            },
+            handleSearch:function(){                                      //处理事件(把pageNo变成1)
+                this.searchType='0';
+                this.formInline.pageNo='1';
+                this.searchProductRequest(this.formInline);
+            },
+            handleTwoDayOffline:function () {
+                this.formInline.pageNo='1';
+                this.twoDayOfflineProduct();
+            },
+            handlePriceProblemProduct:function () {
+                this.formInline.pageNo='1';
+                this.priceProblemProduct();
+            },
+            handleZeroCostPrice:function () {
+                this.formInline.pageNo='1';
+                this.zeroCostPrice();
+            },
+            twoDayOfflineProduct:function () {                           //今天/昨天下架商品    doing
+                var data={};
+                this.searchType='1';
+                data.offLineStartTime=this.getFormatDate(new Date().getTime()-86400000);
+                data.offLineEndTime=this.getFormatDate(new Date().getTime());
+                data.canSearch='-1';
+                data.online='';
+                data.problemProduct='0'
+                data.pageSize=this.formInline.pageSize;
+                data.pageNo=this.formInline.pageNo;
+                this.searchProductRequest(data);
+            },
+            getFormatDate:function (time) {
+                var date = new Date(time);
+                var seperator1 = "-";
+                var year = date.getFullYear();
+                var month = date.getMonth() + 1;
+                var strDate = date.getDate();
+                var hour = date.getHours() < 10 ? "0" + date.getHours() : date.getHours();
+                var minute = date.getMinutes() < 10 ? "0" + date.getMinutes() : date.getMinutes();
+                var second = date.getSeconds() < 10 ? "0" + date.getSeconds() : date.getSeconds();
+                if (month >= 1 && month <= 9) {
+                    month = "0" + month;
+                }
+                if (strDate >= 0 && strDate <= 9) {
+                    strDate = "0" + strDate;
+                }
+                var currentdate = year + seperator1 + month + seperator1 + strDate+' '+hour + ":" +minute + ":" + second ;
+                return currentdate;
+            },
+            priceProblemProduct:function () {                              //价格有问题商品
+                var data={};
+                this.searchType='2';
+                data.costPrice='1';
+                data.problemProduct="1";
+                data.pageSize=this.formInline.pageSize;
+                data.pageNo=this.formInline.pageNo;
+                data.canSearch='-1';
+                this.searchProductRequest(data);
+            },
+            zeroCostPrice:function () {                                    //成本价为0的商品
+                var data={};
+                this.searchType='3';
+                data.costPrice='0';
+                data.problemProduct="0";
+                data.pageSize=this.formInline.pageSize;
+                data.pageNo=this.formInline.pageNo;
+                data.canSearch='-1';
+                this.searchProductRequest(data);
+            },
+            handleClickSpan:function (row,item,type) {                       //单击可编辑价格(判断是否修改价格)
+                var data={};
+                data.productId=row.productId;
+                data.skuBarCode=item.barCode;
+                data.skuId=item.id;
+                if(type=='1'){
+                    var price=item.shoppeSkuPrice.trim();
+                    if(price==item.checkShoppeSkuPrice){
+                        item.checke1=false;
+                        return
+                    }
+                    data.marketPrice=item.shoppeSkuPrice;
+                }else{
+                    var price=item.priceYuan.trim();
+                    if(price==item.checkPriceYuan){
+                        item.checke2=false;
+                        return
+                    }
+                    data.price=item.priceYuan;
+                }
+                this.changePriceRequest(data,item,type);
+            },
+            changePriceRequest:function (data,item,type) {
+                this.$http.post('/product/publishPlatform/editProduct',data,{emulateJSON:true})
+                        .then(function(res){
+                            var res=res.body;
+                            if(res.success){
+                                this.$message({
+                                    message:res.msg,
+                                    type:"success"
+                                });
+                                if(type=='1'){
+                                    item.checkShoppeSkuPrice=item.shoppeSkuPrice;
+                                    item.checke1=false;
+                                }else{
+                                    item.checkPriceYuan=item.priceYuan;
+                                    item.checke2=false;
+                                }
+                            }else{
+                                if(type=='1'){
+                                    item.shoppeSkuPrice=item.checkShoppeSkuPrice;
+                                    item.checke1=false;
+                                }else{
+                                    item.priceYuan=item.checkPriceYuan;
+                                    item.checke2=false;
+                                }
+                                this.$message({
+                                    message:res.msg,
+                                    type:"warning"
+                                })
+                            }
+                        })
+            },
+            handleOnline:function (row) {                          //上架
+                var data={};
+                data.ids=row.productId;
+                this.batchOnline(data,row);
+            },
+            handleBatchOnline:function (row) {                     //处理批量上架
+                var data={},
+                        ids='';
+                if(row==''){
+                    this.$message.error('请最少选择一个商品');
+                    return false;
+                }
+                row.forEach(function (item,index) {
+                    ids+=item.productId+',';
+                })
+                data.ids=ids;
+                this.batchOnline(data,row);
+            },
+            batchOnline:function (data,row) {
+                this.$http.post('/product/publishPlatform/batchOnline',data,{emulateJSON:true})
+                        .then(function(res){
+                            var res=res.body;
+                            if(res.success){
+                                this.$message({
+                                    message:res.msg,
+                                    type:"success"
+                                });
+                             if(row.length==null){
+                                 row.onlineStatus=true
+                             }else{
+                                 row.forEach(function (item,index) {
+                                     item.onlineStatus=true;
+                                 })
+                             }
+                            }else{
+                                this.$message({
+                                    message:res.msg,
+                                    type:"warning"
+                                })
+                            }
+                        })
+            },
+            handleOffline:function (row) {                          //下架
+                this.ids=row.productId;
+                this.offline=row;
+//                console.log(row);
+                this.offlineModalShow=true;
+                this.checkOffline='0';
+            },
+            handleBatchOffline:function (row) {                     //处理批量下架
+                var ids='';
+                if(row==''){
+                    this.$message.error('请最少选择一个商品');
+                    return false;
+                }
+                row.forEach(function (item,index) {
+                    ids+=item.productId+',';
+                })
+                this.ids=ids;
+                this.offlineModalShow=true;
+                this.checkOffline='1';
+                console.log(row);
+            },
+            batchOffline:function () {
+                var data={},
+                        row=this.batchList;
+                data.ids=this.ids;
+                data.reason=this.textarea;
+                if(this.textarea==''){
+                   this.$message('下架原因不能为空');
+                   return false;
+                }
+                this.$http.post('/product/publishPlatform/batchOffline',data,{emulateJSON:true})
+                        .then(function(res){
+                            var res=res.body;
+                            if(res.success){
+                                this.$message({
+                                    message:res.msg,
+                                    type:"success"
+                                });
+                                if(this.checkOffline=='0'){
+                                    this.offline.onlineStatus=false;
+                                }else{
+                                    row.forEach(function (item,index) {
+                                        item.onlineStatus=false;
+                                    })
+                                  }
+                                this.offlineModalShow=false;
+                                this.textarea='';
+                            }else{
+                                this.$message({
+                                    message:res.msg,
+                                    type:"warning"
+                                })
+                            }
+                        })
+            },
+            handleOutOfStock:function(row,item){                                      //缺货事由
+                if(item.storageState=='0'){
+                    if(item.outOfStock=='NORMAL'){
+                        item.checke3=false;
+                        this.$message.error('必须选择缺货事由');
+                        return false;
+                    }
+                    this.outOfStockRequest(row,item);
+                }else{
+                    item.outOfStock='NORMAL';
+                    this.outOfStockRequest(row,item);
+                }
+            },
+            outOfStockRequest:function (row,item) {
+                var data={};
+                data.outOfStock=item.outOfStock;
+                data.id=item.id;
+                data.barCode=item.barCode;
+                data.productId=row.productId;
+                console.log(data);
+                this.$http.post('/product/publishPlatform/outOfStock',data,{emulateJSON:true})
+                        .then(function(res){
+                            var res=res.body;
+                            if(res.success){
+                                this.$message({
+                                    message:res.msg,
+                                    type:"success"
+                                })
+                                if(item.outOfStock=='NORMAL'){
+                                    item.storageState='0';
+                                }else{
+                                    item.storageState='1';
+                                }
+                            }else{
+                                this.$message({
+                                    message:res.msg,
+                                    type:"warning"
+                                })
+                                if(item.storageState=='0'){
+                                    item.checke3=false;
+                                }else{
+                                    item.checke3=true;
+                                }
+                            }
+                        })
+            },
+            handleActInfo:function (row) {                  //展示活动价格
+                var data={};
+                data.productId=row.productId;
+                this.actInfoModalShow=true;
+                this.activeName='first';
+                this.$http.post('/product/publishPlatform/findDiscount',data,{emulateJSON:true})
+                        .then(function(res){
+                            var res=res.body;
+                            if(res.success){
+                               this.saleDiscountList=res.data.discount;
+                               if(res.data.specialSale==null){
+                                   this.flashSaleList=null;
+                               }else{
+                                   this.flashSaleList=res.data.specialSale.specialSaleSKUList;
+                               }
+//                               console.log(this.flashSaleList);
+                            }else{
+                                this.$message({
+                                    message:res.msg,
+                                    type:"warning"
+                                })
+                            }
+                        })
+            },
+            handleAmendActivePrice:function (arrs) {
+                var data={},
+                        str='';
+                arrs.forEach(function(item,index){
+                    str+=item.discountId+'-'+item.productId+'-'+item.skuId+'-'+item.skuBarCode+'-'+item.locale+'-'+item.discountPrice+',';
+                });
+                data.data=str;
+                this.$http.post('/product/publishPlatform/updateDiscount',data,{emulateJSON:true})
+                        .then(function(res){
+                            var res=res.body;
+                            if(res.success){
+                                this.$message({
+                                    message:res.data.msg,
+                                    type:"success"
+                                })
+                            }else{
+                                this.$message({
+                                    message:res.data.msg,
+                                    type:"warning"
+                                })
+                            }
+                        })
+            },
+            handleSpecialPrice:function (arrs) {
+                var data={},
+                        str='';
+                arrs.forEach(function(item,index){
+                    str+=item.id+'-'+item.num+',';
+                });
+                data.data=str;
+                this.$http.post('/product/publishPlatform/updateSpecial',data,{emulateJSON:true})
+                        .then(function(res){
+                            var res=res.body;
+                            if(res.success){
+                                this.$message({
+                                    message:res.data.msg,
+                                    type:"success"
+                                })
+                            }else{
+                                this.$message({
+                                    message:res.data.msg,
+                                    type:"warning"
+                                })
+                            }
+                        })
+            },
+            handleClick:function (tab,event) {
+               if(tab.name=='second'){
+                    this.doubleSpecialSale=this.flashSaleList;
+                    return ;
+               }
+                this.doubleSpecialSale=[];
+            }
+        },
+        filters:{
+            checkNull:function (val) {
+                return val==null ? '0' : val;
+            }
+        },
+   })
+</script>
+</html>

@@ -1,0 +1,1182 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no">
+    <title>讲师管理系统</title>
+    <meta name="description" content="">
+    <meta name="keywords" content="">
+    <link href="" rel="stylesheet">
+    ##    <link href="https://cdn.bootcss.com/element-ui/2.0.4/theme-chalk/index.css" rel="stylesheet">
+    <link href="https://cdn.bootcss.com/element-ui/1.4.6/theme-default/index.css" rel="stylesheet">
+    <style type="text/css">
+        html {overflow-y: scroll;}
+        :root {overflow-y: auto;overflow-x: hidden;}
+        :root body {position: absolute; }
+        body {width: 100vw;overflow: hidden;background: #fff; padding-top: 0;font-size: 13px;}
+        * {margin: 0; padding: 0;}
+        a, a:visited, a:hover {color: #666;}
+        .tow-row-hide {  display: -webkit-box;  -webkit-box-orient: vertical;  -webkit-line-clamp: 2;  overflow: hidden; }
+        .one-row-hide {  overflow: hidden;  text-overflow: ellipsis;  white-space: nowrap;  }
+        .imgList {flex-wrap: wrap;}
+        .imgList img {width: 45px; height: 45px; margin: 2px;}
+        .pagCon {width: 100%; height: 100px; background: #fff;padding-top: 20px;}
+        .el-pagination {text-align: center; padding-top: 20px;}
+        .topForm {background: #fff;padding: 10px;}
+        .topForm .el-form-item{padding-right: 20px;}
+        .el-table__header tr{background: #f2f2f2; color: #000;}
+        .imgDialog{text-align: center;}
+        .imgDialog img{width: 60%; height: auto;cursor: pointer; -webkit-user-select:none;-moz-user-select:none;-ms-user-select:none; user-select:none;}
+
+        /*loading logo*/
+        .loading {width: 100%; height:100%; background: rgba(255,255,255,.4); position: fixed; top: 0; left: 0; z-index: 100000 !important; display: none;}
+        .spinner {width: 32px;height: 32px; position: relative; top: 50%; left: 50%; transform: translate3d(-50%, -50%, 0);}
+        .cube1, .cube2 {background-color: deepskyblue;  width: 30px; height: 30px; position: absolute; top: 0; left: 0; -webkit-animation: cubemove 1.8s infinite ease-in-out; animation: cubemove 1.8s infinite ease-in-out; }
+        .cube2 {-webkit-animation-delay: -0.9s; animation-delay: -0.9s; }
+        @-webkit-keyframes cubemove {
+            25% { -webkit-transform: translateX(42px) rotate(-90deg) scale(0.5) }
+            50% { -webkit-transform: translateX(42px) translateY(42px) rotate(-180deg) }
+            75% { -webkit-transform: translateX(0px) translateY(42px) rotate(-270deg) scale(0.5) }
+            100% { -webkit-transform: rotate(-360deg) }
+        }
+        @keyframes cubemove {
+            25% {
+                transform: translateX(42px) rotate(-90deg) scale(0.5);
+                -webkit-transform: translateX(42px) rotate(-90deg) scale(0.5);
+            } 50% {
+                  transform: translateX(42px) translateY(42px) rotate(-179deg);
+                  -webkit-transform: translateX(42px) translateY(42px) rotate(-179deg);
+              } 50.1% {
+                    transform: translateX(42px) translateY(42px) rotate(-180deg);
+                    -webkit-transform: translateX(42px) translateY(42px) rotate(-180deg);
+                } 75% {
+                      transform: translateX(0px) translateY(42px) rotate(-270deg) scale(0.5);
+                      -webkit-transform: translateX(0px) translateY(42px) rotate(-270deg) scale(0.5);
+                  } 100% {
+                        transform: rotate(-360deg);
+                        -webkit-transform: rotate(-360deg);
+                    }
+        }
+        /*上传个人照*/
+        .avatar-uploader .el-upload {
+            border: 1px dashed #d9d9d9;
+            border-radius: 6px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        .avatar-uploader .el-upload:hover {
+            border-color: #409EFF;
+        }
+        .avatar-uploader-icon {
+            font-size: 28px;
+            color: #8c939d;
+            width: 178px;
+            height: 178px;
+            line-height: 178px;
+            text-align: center;
+        }
+        .avatar {
+            width: 178px;
+            height: 178px;
+            display: block;
+        }
+        /*common*/
+        input,textarea,.el-dialog__body,.el-table{font-size: 13px!important;}
+        .el-table .cell{line-height: 20px;}
+        .el-dialog__header{text-align: center;}
+        .el-input__inner{height: 30px;}
+
+        /*start*/
+        .el-table th>.cell,.el-table .cell{text-align: center;}
+        .addLecture{text-align: center;}
+        .addCourse .el-row,.addLecture .el-row,.alertLecturer .el-row{margin-bottom: 30px;}
+        .addCourse .el-row:last-child,.addLecture .el-row:last-child,alertLecturer .el-row:last-child{margin-bottom: 10px;}
+        .addCourse .el-dialog__body{padding: 30px 40px 30px 0px;}
+        textarea{height: 100px;}
+        .checkCourse  .el-dialog{width: 90%;top:5%!important;}
+        .checkCourse  .el-table .cell{line-height: 26px;}
+        .input-xs{width:150px;height: 30px;background-color: #fff;background-image: none;border: 1px solid #bfcbd9;color: #1f2d3d;line-height: 1;outline: none;padding: 3px 5px;}
+        .contentTip {  max-width: 300px;  line-height: 20px;  }
+        .header input{font-size: 12px!important;}
+        .succ{background-color:#13CE66!important;border: none;}
+        .el-table::before{height: 0!important;}
+
+    </style>
+</head>
+<body>
+<!-- 由Vue管理 -->
+<div id="app">
+    <!-- loading logo -->
+    <div class="loading" id="fullScreenLoading">
+        <div class="spinner">
+            <div class="cube1"></div>
+            <div class="cube2"></div>
+        </div>
+    </div>
+    <!-- header -->
+    <el-row>
+        <el-col :span="15" type="flex" style="margin: 20px 0 10px 0;" class="header">
+            <el-input v-model="formInline.userId" style="width: 60px;" placeholder="用户id" @keyup.native.enter="onSubmit"></el-input>
+            <el-input v-model="formInline.nickName" style="width:120px" placeholder="讲师昵称" @keyup.native.enter="onSubmit"></el-input>
+            <el-date-picker type="datetime" placeholder="注册起始日期"  style="width:150px" v-model="formInline.registStartTime" @change="registStartChange"></el-date-picker>
+            <el-date-picker type="datetime" placeholder="注册结束日期"  style="width: 150px;" v-model="formInline.registEndTime" @change="registEndChange"></el-date-picker>
+            <el-button type="primary" size="small" @click="onSubmit" icon="search">查询</el-button>
+            <el-button type="primary" size="small" @click="handleAddLecture">添加讲师</el-button>
+            <el-button type="primary" size="small" @click="handleCoursePage">查看课程信息</el-button>
+        </el-col>
+
+    </el-row>
+
+    <el-table :data="lecturerList"  height="750" border  stripe>
+        <el-table-column label="讲师id">
+            <template scope="scope">
+                <span>{{ scope.row.id }}</span>
+            </template>
+        </el-table-column>
+        <el-table-column label="实际用户id">
+            <template scope="scope">
+                <span>{{ scope.row.userId }}</span>
+            </template>
+        </el-table-column>
+        <el-table-column label="真实姓名">
+            <template scope="scope">
+                <div style="text-align: center;">
+                    <span class="tow-row-hide">{{ scope.row.realName }}</span>
+                </div>
+            </template>
+        </el-table-column>
+        <el-table-column label="昵称">
+            <template scope="scope">
+                <div style="text-align: center">
+                    <span  class="tow-row-hide">{{ scope.row.nickName }}</span>
+                </div>
+            </template>
+        </el-table-column>
+
+        <el-table-column label="头衔">   ##todo
+            <template scope="scope">
+                <div style="text-align: center">
+                    <span v-if="scope.row.checke1"  @click="scope.row.checke1=false"   class="tow-row-hide">{{ scope.row.checkTitle }}</span>
+                    <input v-else class="input-xs" v-model="scope.row.title"  @blur="handleInputBlur(scope.row,'1')"  v-focus></input>
+                </div>
+
+            </template>
+        </el-table-column>
+        <el-table-column label="讲师创建时间">
+            <template scope="scope">
+                <div style="text-align: center">
+                    <span  class="tow-row-hide">{{ scope.row.createTime}}</span>
+                </div>
+            </template>
+        </el-table-column>
+        <el-table-column label="开课总收益(元)">
+            <template scope="scope">
+                <div style="text-align: center">
+                    <span  class="tow-row-hide">{{ scope.row.totalInCome}}</span>
+                </div>
+            </template>
+        </el-table-column>
+        <el-table-column label="讲师图片" width="150">
+            <template scope="scope">
+                <div  class="imgList" >
+                    <img :src="scope.row.publicityPic"  @click="openImgDialog(scope.row.publicityPic)">
+                </div>
+            </template>
+        </el-table-column>
+        <el-table-column label="讲师介绍" width = 220>
+            <template scope="scope">
+                <div style="text-align: center">
+                    <div style="text-align: center">
+                        <span  v-if="scope.row.checke2"  @click="scope.row.checke2=false"  class="tow-row-hide">{{ scope.row.introduce }}</span>
+                        <input class="input-xs"  v-else v-model="scope.row.introduce"  @blur="handleInputBlur(scope.row,'2')" v-focus></input>
+                    </div>
+                </div>
+            </template>
+        </el-table-column>
+        <el-table-column label="操作" width="350">
+            <template scope="scope">
+                <div class="operateGroup">
+                    ##讲师搜索
+                    <el-button size="mini" type="info" @click="handleCheckCourse(scope.row)">查看课程</el-button>  ##most
+                    <el-button size="mini" type="warning" @click="handleAddCourse(scope.$index,scope.row)">添加课程</el-button>
+                    <el-button size="mini" type="success" @click="updateLecturerHander(scope.$index,scope.row)">修改信息</el-button>
+                    <el-button size="mini" type="danger" @click="handleDelete(scope.row.userId)">取消资格</el-button>
+                </div>
+            </template>
+        </el-table-column>
+    </el-table>
+
+    ##    分页
+    <div class="pagCon">
+        <el-pagination @current-change="handleLecturerChange" :current-page="pagination.currPage" :page-size="pagination.pageSize" layout="total, prev, pager, next, jumper" :total="pagination.totalCount">
+        </el-pagination>
+    </div>
+
+     <!--弹窗部分-->
+   ##    添加讲师弹窗
+    <el-dialog title="添加讲师" :visible.sync="addLectureTable.show" size="big" class="addLecture">
+        <el-row type="flex" align="middle">
+            <el-col :span="4">输入用户信息</el-col>
+            <el-col :span="10"><el-input v-model="addLectureList.keyword" placeholder="请输入手机或者昵称" @keyup.native.enter="searchByNicknameOrPhone"></el-input></el-col>
+            <el-col :span="10"> <el-button type="primary" @click="searchByNicknameOrPhone" icon="search">查询</el-button></el-col>
+        </el-row>
+        <el-table :data="userList" @selection-change="changeTest" >
+            <el-table-column type="selection"  width="55">
+            </el-table-column>
+            <el-table-column  prop="userId" label="用户id" width="180">
+            </el-table-column>
+            <el-table-column prop="userName" label="用户名" width="180">
+            </el-table-column>
+            <el-table-column prop="nickName" label="昵称" width="180">
+            </el-table-column>
+            <el-table-column prop="title" label="头衔" width="180">
+            </el-table-column>
+        </el-table>
+        <br>
+        <el-row type="flex" align="middle">
+            <el-col :span="4">真实姓名: </el-col>
+            <el-col :span="20"><el-input type="text" v-model="addLectureList.realName"></el-input></el-col>
+        </el-row>
+        <el-row type="flex" align="middle">
+            <el-col :span="4">自我介绍: </el-col>
+            <el-col :span="20"><el-input type="textarea" v-model="addLectureList.introduce"></el-input></el-col>
+        </el-row>
+        <el-row type="flex">
+            <el-col :span="4">上传个人照: </el-col>
+            <el-col :span="8"><el-upload
+                    class="avatar-uploader"
+                    action="/picManager/uploadPicture/userSpace"
+                    :show-file-list="false"
+                    :on-success="handleAvatarSuccess"
+                    :before-upload="beforeAvatarUpload">
+                <img v-if="addLectureTable.publicityPic" :src="addLectureTable.publicityPic" class="avatar">
+                <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+            </el-upload></el-col>
+        </el-row>
+
+        <span slot="footer" class="dialog-footer">
+            <el-button @click="addLectureTable.show = false">取 消</el-button>
+            <el-button type="primary" @click="addLecture">添 加</el-button>
+        </span>
+    </el-dialog>
+
+    ##  添加课程弹窗
+    <el-dialog title="添加课程" :visible.sync="addCourseTable.show"  class="addCourse" >
+        <el-row type="flex" align="middle">
+            <el-col :span="4" style="text-align: center;">课程名:</el-col>
+            <el-col :span="20"><el-input v-model="courseList.title" style="width: 50%;" :maxlength="20"  placeholder="最多只能输入20个字符"></el-input> </el-col>
+        </el-row>
+        <el-row type="flex" align="middle">
+            <el-col :span="4" style="text-align: center;">课程描述:</el-col>
+            <el-col :span="20"><el-input type="textarea" :rows="3" :maxlength="255" placeholder="课程简介，每行请勿超过21个字符，建议不超过5行" v-model="courseList.courseDesc"></el-input> </el-col>
+        </el-row>
+        <el-row type="flex" align="middle">
+            <el-col :span="4" style="text-align: center;">课程封面:</el-col>
+            <el-col :span="20"><el-upload
+                    class="avatar-uploader"
+                    action="/picManager/uploadPicture/userSpace"
+                    :show-file-list="false"
+                    :on-success="handleCourseUploadedSuccess"
+                    :before-upload="beforeAvatarUpload">
+                <img v-if="addCourseTable.publicityPic" :src="addCourseTable.publicityPic" class="avatar">
+                <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+            </el-upload></el-col>
+        </el-row>
+        <el-row type="flex" align="middle">
+        <el-col :span="4" style="text-align: center;">开课时间:</el-col>
+        <el-col :span="20">
+            <el-date-picker type="datetime" placeholder="选择日期"  style="width: 50%;" v-model="courseList.showStartTime" value-format="yyyy-MM-dd HH:mm:ss" @change="changeDate1"></el-date-picker>
+        </el-col>
+    </el-row>
+        <el-row type="flex" align="middle">
+            <el-col :span="4" style="text-align: center;">结课时间:</el-col>
+            <el-col :span="20">
+                <el-date-picker type="datetime" placeholder="选择日期"  style="width: 50%;" v-model="courseList.showEndTime" value-format="yyyy-MM-dd HH:mm:ss" @change="changeDate2"></el-date-picker>
+            </el-col>
+        </el-row>
+
+        <el-row type="flex" align="middle">
+            <el-col :span="4" style="text-align: center;">订阅费:</el-col>
+            <el-col :span="20">
+                <el-input placeholder="订阅费"  style="width: 50%;" v-model="courseList.subscribePayNum"></el-input>
+            </el-col>
+        </el-row>
+        <el-row type="flex" align="middle">
+            <el-col :span="4" style="text-align: center;">支付类型:</el-col>
+            <el-col :span="20">
+                <el-select v-model="value"  placeholder="请选择支付类型"  @change="changeValue" >
+                    <el-option
+                            v-for="item in options"
+                            :key="item.value"
+                            :label="item.text"
+                            :value="item.value"></el-option>
+                </el-select>
+            </el-col>
+        </el-row>
+        <span slot="footer" class="dialog-footer">
+            <el-button @click="addCourseTable.show = false">取 消</el-button>
+            <el-button type="primary" @click="addCourse">确 定</el-button>
+        </span>
+    </el-dialog>
+
+    ##    查看历史课程   most
+    <el-dialog :visible.sync="checkCourseTable.show"  title="查看课程"   style="width: 100%;text-align: center;" class="checkCourse">
+        <el-table :data="oldCourseList" height="650" border style="width: 100%;" stripe :default-sort = "{prop: 'date', order: 'descending'}">
+            <el-table-column label="课程id" width="100">
+                <template scope="scope">
+                   <span>{{scope.row.id}}</span>
+                </template>
+            </el-table-column>
+            <el-table-column label="封面图" width="100">
+                <template scope="scope">
+                    <div  class="imgList" >
+                        <img :src="scope.row.coverPic"  @click="openImgDialog(scope.row.coverPic)">
+                    </div>
+                </template>
+            </el-table-column>
+            <el-table-column label="课题名" width="150">
+                <template scope="scope">
+                    <span class="tow-row-hide">{{scope.row.title}}</span>
+                </template>
+            </el-table-column>
+            <el-table-column label="描述" width="150">
+                <template scope="scope">
+                    <el-tooltip :content="scope.row.courseDesc" placement="right-start" popper-class="contentTip">
+                        <span  class="tow-row-hide">{{ scope.row.courseDesc }}</span>
+                    </el-tooltip>
+                </template>
+            </el-table-column>
+            <el-table-column label="订阅量">
+                <template scope="scope">
+                    <span>{{scope.row.subscribeCount}}</span>
+                </template>
+            </el-table-column>
+            <el-table-column label="开课状态" width="120">
+                <template scope="scope">
+                    <div style="text-align: center">
+                        <span>{{ scope.row.courseStatus | coursefilter('')}}</span>
+                    </div>
+                </template>
+            </el-table-column>
+            <el-table-column label="订阅费" width="120">
+                <template scope="scope">
+                    <div style="text-align: center">
+                        <span>{{ scope.row.subscribePayNum}}</span>
+                    </div>
+                </template>
+            </el-table-column>
+            <el-table-column label="课程收益" width="120">
+                <template scope="scope">
+                    <div style="text-align: center">
+                        <span>{{ scope.row.profitAllocation}}</span>
+                    </div>
+                </template>
+            </el-table-column>
+            <el-table-column label="拒绝原因" width="150">
+                <template scope="scope">
+                <el-tooltip :content="scope.row.rejectReason" placement="right-start" popper-class="contentTip">
+                    <span  class="tow-row-hide">{{ scope.row.rejectReason}}</span>
+                </el-tooltip>
+                </template>
+            </el-table-column>
+            <el-table-column label="预期录制时间" width="180" prop="showStartTime" :formatter="dateFormat" ></el-table-column>
+            <el-table-column label="预期录制时间" width="180" prop="showEndTime" :formatter="dateFormat" ></el-table-column>
+            <el-table-column label="创建时间" sortable width="180" prop="createTime" :formatter="dateFormat" ></el-table-column>
+            <el-table-column label="实际录制开始时间" sortable width="180" prop="realStartTime" :formatter="dateFormat"></el-table-column>
+            <el-table-column label="实际录制结束时间" width="180" prop="realEndTime" :formatter="dateFormat" ></el-table-column>
+            <el-table-column label="更新时间" width="180" prop="updateTime" :formatter="dateFormat" ></el-table-column>
+            <el-table-column label="开课申请操作" width="180">
+                <template scope="scope">
+                    <div class="operateGroup">
+                       <el-button size="mini" type="warning" :disabled="scope.row.courseStatus!=2" @click="handleApproval(scope.row)">审核</el-button>
+                       <el-button size="mini" type="danger"  @click="handleCourseDelete(scope.row)">删除</el-button>
+                    </div>
+                </template>
+            </el-table-column>
+        </el-table>
+
+        ## 分页
+        <div class="pagCon">
+            <el-pagination @current-change="handleCheckChange" :current-page="pagination2.currPage" :page-size="pagination2.pageSize" layout="total, prev, pager, next, jumper" :total="pagination2.totalCount">
+            </el-pagination>
+        </div>
+    </el-dialog>
+
+    ##    图片预览弹窗
+    <el-dialog :visible.sync="imgDialog.show" size="tiny" class="imgDialog">
+        <div class="imgDialog-con">
+            <img :src="imgDialog.src" alt="">
+        </div>
+    </el-dialog>
+    ##    修改讲师信息
+    <el-dialog :visible.sync="editLecturerForm.show" title="修改讲师信息" class="alertLecturer">
+        <el-row type="flex" align="middle">
+            <el-col :span="4">真实姓名:</el-col>
+            <el-col :span="20"><el-input v-model="editLecturerForm.realName"></el-input> </el-col>
+        </el-row>
+        <el-row type="flex" align="middle">
+            <el-col :span="4">个人介绍:</el-col>
+            <el-col :span="20"><el-input type="textarea" :rows="3" :maxlength="255" placeholder="课程简介，每行请勿超过21个字符，建议不超过5行" v-model="editLecturerForm.introduce"></el-input> </el-col>
+        </el-row>
+        <el-row type="flex" align="middle">
+            <el-col :span="4">个人照:</el-col>
+            <el-col :span="8"><el-upload
+                    class="avatar-uploader"
+                    action="/picManager/uploadPicture/userSpace"
+                    :show-file-list="false"
+                    :on-success="handleUpdateLecturerPicSuccess"
+                    :before-upload="beforeAvatarUpload">
+                <img v-if="editLecturerForm.publicityPic" :src="editLecturerForm.publicityPic" class="avatar">
+                <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+            </el-upload></el-input></el-col>
+        </el-row>
+        <el-row align="right">
+            <el-button type="primary" @click="updateLecturerRequest">修改</el-button>
+        </el-row>
+
+    </el-dialog>
+
+
+
+##拒绝申请的理由   nowdoing
+    <el-dialog :visible.sync="approvalShow" title="开课审核" class="approvalDialog">
+        <el-row type="flex" align="middle" style="margin-bottom: 30px;">
+            <el-col :span="12" :offset="6" style="text-align: center">
+                <el-radio v-model="radio" label="1" style="margin-right: 80px;">通过</el-radio>
+                <el-radio v-model="radio" label="2">不通过</el-radio>
+            </el-col>
+        </el-row>
+
+        <el-row v-show="radio==2">
+            <el-row type="flex" align="middle" style="margin-top: 5px;" >
+                <el-col :span="4">拒绝理由:</el-col>
+                <el-col :span="20"><el-input type="textarea" :rows="3" :maxlength="255" placeholder="拒绝理由，每行请勿超过21个字符，建议不超过5行" v-model="rejectReasonForm.rejectReason"></el-input> </el-col>
+            </el-row>
+        </el-row>
+        <el-row style="text-align: center;margin-top: 30px;"><el-button type="primary"  size="small" @click="checkApproval">提交</el-button></el-row>
+    </el-dialog>
+
+</div>
+</body>
+<script src="https://cdn.bootcss.com/vue/2.3.4/vue.js"></script>
+<script src="https://cdn.bootcss.com/vue-resource/1.3.4/vue-resource.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.20.1/min/moment.min.js"></script>
+<script src="https://cdn.bootcss.com/element-ui/1.4.6/index.js"></script>
+<script>
+    var getQueryString = function (name, source) {
+        var reg = new RegExp('(^|\\?|&)' + name + '=([^&]*)(&|$)', 'i'),
+                source = source || window.location.search,
+                r = source.match(reg);
+        if (r != null) return decodeURIComponent(r[2]);
+        return null;
+    }
+</script>
+<script>
+
+    Vue.http.interceptors.push(function (request, next) {           //ajax请求拦截
+        console.log(request);
+        if(request.url == '/beauty/post/notReviewPostCount'){
+            next(function (response) {return response;})
+        }else {
+            document.getElementById('fullScreenLoading').style.display = 'block';
+            next(function (response) {
+                document.getElementById('fullScreenLoading').style.display = 'none';
+                return response;
+            })
+        }
+    })
+
+    // 注册一个全局自定义指令 `v-focus`
+    Vue.directive('focus', {
+        inserted: function (el) {
+            // 聚焦元素
+            el.focus()
+        }
+    })
+
+
+    var app=new Vue({
+        el: '#app',
+        data: {
+                value :0,
+                options:[
+                    {text:'金额CNY(分)',value:0},
+                    {text:'积分',value:1}
+                ],
+                pagination: {
+                    totalCount: 1,          //分页总页面
+                    currPage: 1,            //当前页码
+                    pageSize: 16           //每页显示的数量
+                },
+                pagination2: {
+                    totalCount: 1,          //分页总页面
+                    currPage: 1,            //当前页码
+                    pageSize: 10           //每页显示的数量
+                },
+                screenDialog: {             //屏蔽帖子弹窗事件
+                    title: '是否屏蔽',
+                    show: false,
+                    reason: '',             //屏蔽原因
+                    row: {}                 //当前选中的帖子
+                },
+                addLectureTable: {             //增加讲师弹窗事件
+                    title: '是否屏蔽',
+                    show: false,
+                    realName: '',
+                    introduce:'',
+                    publicityPic:'',
+                    row: {}                 //当前选中的帖子
+                },
+                addLectureList:{            //添加讲师参数
+                    userId:'',
+                    realName:'',
+                    nickName:'',
+                    introduce:''
+                },
+                editLecturerForm:{
+                    show:false,
+                    publicityPic:''
+                },
+                addCourseTable:{            //添加课程弹窗
+                    title:'',
+                    show:false,
+                    reason:'',
+                    publicityPic:'',
+                    row:{}
+                },
+                courseList:{                //添加课程的参数
+                    lecturerId:'',
+                    title:'',
+                    courseDesc:'',
+                    coverPic:'',
+                    showStartTime:'',
+                    showEndTime:'',
+                    subscribePayNum:0,
+                    subscribePayType:0 // 支付类型默认为金钱
+                },
+                checkCourseTable:{          //查看课程
+                    show:false,
+                },
+                checkCourseList:{           //查看课程参数
+                    userId:'',
+                    lecturerId:'',
+                    pageNo:'1',
+                    pageSize:'10'
+                },
+                oldCourseList:[],
+                imgDialog: {
+                    show: false,
+                    src: ''
+                },
+                lecturerList: [],
+                notReviewCount:0,
+                formInline: {               //分页查询参数
+                    userId: '',
+                    realName: '',
+                    nickName: '',
+                    title: '',
+                    registStartTime:'',
+                    registEndTime:'',
+                    pageNo: 1,
+                    pageSize:''
+                },
+                userList:[],
+                rejectReasonForm:{
+                    show:false,
+                    rejectReason:''
+                },
+                radio:'1',
+                approvalShow:false,
+                approvalForm:{},
+                sortDesc:false,
+
+        },
+        created: function () {
+            this.formInline.pageNo = this.pagination.currPage;
+            this.formInline.pageSize = this.pagination.pageSize;
+            this.formInline.id=getQueryString("id")
+            this.searchPostRequest(this.formInline);
+        },
+        methods: {                                                   //时间格式设置
+            dateFormat:function (row,column) {
+                var date = row[column.property];
+                if (date == undefined || date == '' ||date < 0) {
+                    return "";
+                }
+//                console.log(moment(date).format("YYYY-MM-DD HH:mm"));
+                return moment(date).format("YYYY-MM-DD HH:mm");
+            },
+            searchByNicknameOrPhone:function () {
+                var data = {};
+                data.keyword = this.addLectureList.keyword;
+                this.$http.post('/beauty/lecturer/search/user', data, {emulateJSON:true, timeout:20000})
+                        .then(function(res) {
+                            res = res.body;
+                            if(res.success) {
+                                this.userList =  res.data.post.products;
+                            }
+                        }).catch(function (e) {
+                    this.$message.error('请求超时或系统发生错误！');
+                })
+            },
+            showIndexPage:function () {
+                window.location.href="/beauty/lecturer/index";
+            },
+            changeTest:function (val) {
+                var postData = this.addLectureList;
+                if(val.length > 1){
+                    this.$message.error("暂只能选择一个用户添加");
+                    return;
+                }
+                postData.userId = val[0].userId;
+                postData.userName = val[0].userName;
+                postData.nickName = val[0].nickName;
+                postData.introduce = this.addLectureList.introduce;
+                postData.title = val[0].title;
+            },
+            // select 支付类型
+            changeValue:function (value) {
+                this.courseList.subscribePayType = value;
+            },
+            changeDate1:function (value) {
+                this.courseList.showStartTime = value;
+            },
+            changeDate2:function (value) {
+                this.courseList.showEndTime = value;
+            },
+            registStartChange:function (val) {
+                this.formInline.registStartTime=val;
+            },
+            registEndChange:function (val) {
+                this.formInline.registEndTime=val;
+            },
+            // 讲师搜索
+            searchPostRequest: function (data) {
+                this.$http.post('/beauty/lecturer/search', data, {emulateJSON:true, timeout:20000})
+                        .then(function(res) {
+                            res = res.body;
+                            if(res.success) {
+                                this.pagination.totalCount = res.data.totalCount;
+                                this.pagination.currPage = res.data.pageNo;
+                                this.lecturerList = this.iterLecturerData(res.data.data);
+                            }else{
+                                this.$message({
+                                    type:'error',
+                                    message:res.msg
+                                })
+                            }
+                        }).catch(function (e) {
+                    this.$message.error('请求超时或系统发生错误！');
+                })
+            },
+            //查看讲师翻页
+            handleLecturerChange:function (currentPage) {
+                this.formInline.pageNo=currentPage;
+                this.searchPostRequest(this.formInline);
+            },
+            // 遍历讲师信息(过滤)
+            iterLecturerData: function (lecturers) {             ##todo
+                var lecturerList = [];
+                lecturers.forEach(function (item, index) {
+                    var lecturer = {};
+                    lecturer.id = item.id;
+                    lecturer.userId =  item.userId;
+                    lecturer.realName = item.realName;
+                    lecturer.nickName = item.nickName;
+                    lecturer.title = item.title;
+                    lecturer.publicityPic = item.publicityPic;
+                    lecturer.checkTitle=item.title;               //失焦事件判断是否重复
+                    lecturer.checke1=true;//点击变成input框
+                    lecturer.createTime = item.createTime;
+                    lecturer.totalInCome = (item.totalIncome/100).toFixed(2);
+                    lecturer.introduce=item.introduce;
+                    lecturer.checkIntroduce=item.introduce;
+                    lecturer.checke2=true;
+                    lecturerList.push(lecturer)
+                })
+                return lecturerList;
+            },
+            //添加课程
+            handleAddCourse:function (index,row) {
+                this.addCourseTable.show=true;
+                this.courseList.lecturerId=row.id;
+                this.courseList.title='';
+                this.courseList.courseDesc='';
+            },
+            //图片上传完成的回调
+            handleAvatarSuccess:function (res,file) {
+                var picUrlData = res.data;
+                if(res.success){
+                    this.$message({
+                        message:res.msg,
+                        type:"success"
+                    });
+                    var serverPrefix = picUrlData['domain.upload.img'];
+                    var picUrl = picUrlData.picUrl;
+                    this.addLectureTable.publicityPic = serverPrefix+'/'+picUrl;
+                }else {
+                    this.$message.error('上传失败,请重试!');
+                }
+            },
+            handleCourseUploadedSuccess:function (res, file) {
+                var picUrlData = res.data;
+                if(res.success){
+                    this.$message({
+                        message:res.msg,
+                        type:"success"
+                    });
+                    var serverPrefix = picUrlData['domain.upload.img'];
+                    var picUrl = picUrlData.picUrl;
+                    this.addCourseTable.publicityPic = serverPrefix+'/'+picUrl;
+                    this.courseList.coverPic = serverPrefix+'/'+picUrl;
+                }else {
+                    this.$message.error('上传失败,请重试!');
+                }
+            },
+            handleUpdateLecturerPicSuccess:function (res,file) {
+                var picUrlData = res.data;
+                if(res.success){
+                    this.$message({
+                        message:res.msg,
+                        type:"success"
+                    });
+                    var serverPrefix = picUrlData['domain.upload.img'];
+                    var picUrl = picUrlData.picUrl;
+                    this.editLecturerForm.publicityPic = serverPrefix+'/'+picUrl;
+                }else {
+                    this.$message.error('上传失败,请重试!');
+                }
+            },
+            beforeAvatarUpload:function (file) {
+                var isImage = false;
+                var type = file.type;
+                if (type == 'image/jpeg' || type == 'image/png'  || type == 'image/gif'){
+                    isImage = true;
+                }
+                const isLt2M = file.size / 1024 / 1024 < 2;
+                if (!isImage) {
+                    this.$message.error('上传头像图片只能是 JPG,PNG,GIF格式!');
+                }
+                if (!isLt2M) {
+                    this.$message.error('上传头像图片大小不能超过 2MB!');
+                }
+                return isImage && isLt2M;
+            },
+            //添加课程确定按钮
+            addCourse:function () {
+
+                var start=new Date(this.courseList.showStartTime).getTime(),
+                    end=new Date(this.courseList.showEndTime).getTime();
+                if(!this.courseList.title){
+                    this.$message.error('课程名不能为空。');
+                    return;
+                }else if(!this.courseList.courseDesc){
+                    this.$message.error('课程描述不能为空。');
+                    return;
+                }else if(!this.courseList.showStartTime){
+                    this.$message.error('开课时间不能为空。');
+                    return;
+                }else if(!this.courseList.showEndTime){
+                    this.$message.error('结课时间不能为空。');
+                    return;
+                }else if(start>end){
+                    this.$message.error('开课时间应该小于结课时间');
+                    return;
+                }else if(end-start>60*60*1000*3||end-start<30*60*1000){
+                    this.$message.error('开课到结课时间应在半小时到三小时之内');
+                    return;
+                }
+                this.addCourseRequest(this.courseList);
+            },
+
+            //添加课程请求
+            addCourseRequest:function (data) {
+                var self=this;
+                this.$http.post('/beauty/lecturer/addCourse',data,{emulateJSON:true,timeout:100000})
+                        .then(function(res){
+                            var res=res.body;
+                            if(res.success){
+                                self.addCourseTable.show=false;
+                                self.$message({
+                                    message:res.msg,
+                                    type:"success"
+                                })
+                            }else{
+                                self.$message({
+                                    message:res.msg,
+                                    type:"warning"
+                                })
+                            }
+                        })
+            },
+            //添加讲师
+            handleAddLecture: function() {
+                this.addLectureTable.show = true;
+            },
+            //添加讲师按钮
+            addLecture:function () {
+                var self = this;
+                if(!self.addLectureList.realName){
+                    this.$message.error('用户真实姓名为空.');
+                    return;
+                }
+                if(!self.addLectureList.introduce){
+                    this.$message.error('自我介绍不能为空。');
+                    return;
+                }
+                self.addLectureList.publicityPic = this.addLectureTable.publicityPic;
+                if (self.addLectureList.publicityPic == ''){
+                    this.$msgbox({
+                        title: '提示',
+                        message: '未选择上传图片，将使用用户默认的头像，是否继续?',
+                        showCancelButton: true,
+                        cancelButtonText: '取消',
+                        confirmButtonText: '确定',
+                        beforeClose: function(action, instance, done) {
+                            action == 'confirm' ? self.addLectureRequest(self.addLectureList) : '';
+                            done();
+                        }
+                    })
+                }else{
+                    self.addLectureRequest(self.addLectureList);
+                }
+                //console.log(self.addLectureList);
+
+            },
+
+            //添加讲师请求
+            addLectureRequest:function (data) {
+                var self=this;
+                this.$http.post('/beauty/lecturer/addLecture',data,{emulateJSON:true,timeout:100000})
+                        .then(function(res){
+                            var res=res.body;
+                            if(res.success){
+                                self.addLectureTable.show=false;
+                                self.addLectureList.realName = '';
+                                self.addLectureList.introduce = '';
+                                self.userList = [];
+                                self.$message({
+                                    message:res.msg,
+                                    type:"success"
+                                });
+                                this.formInline.id = res.data.id;
+                                self.searchPostRequest(this.formInline)
+                            }else{
+                                self.$message({
+                                    message:res.msg,
+                                    type:"warning"
+                                })
+                            }
+                        })
+            },
+            //修改讲师信息
+            updateLecturerHander:function (index,row) {
+                this.editLecturerForm.show = true;
+                this.editLecturerForm.realName = row.realName;
+                this.editLecturerForm.introduce = row.introduce;
+                this.editLecturerForm.id = row.id;
+                this.editLecturerForm.userId = row.userId;
+                this.editLecturerForm.publicityPic = row.publicityPic;
+            },
+            // TODO3
+            updateLecturerRequest:function () {
+                var self = this;
+                var data = self.editLecturerForm;
+                this.$http.post('/beauty/lecturer/update',data,{emulateJSON:true,timeout:1000})
+                        .then(function (res) {
+                            var res=res.body;
+                            if(res.success){
+                                self.editLecturerForm.show=false;
+                                self.searchPostRequest(this.formInline)
+                            }else{
+                                self.$message({
+                                    message:res.msg,
+                                    type:'error'
+                                })
+                            }
+                        })
+            },
+            //查看课程
+            handleCheckCourse:function (row) {
+                this.checkCourseList.userId=row.userId;
+                this.checkCourseList.lecturerId = row.id;
+                this.checkCourse(this.checkCourseList);
+            },
+            //查看课程请求
+            checkCourse:function (data) {
+                this.$http.post('/beauty/lecturer/courseSearch',data,{emulateJSON:true,timeout:100000})
+                        .then(function (res) {
+                            var res=res.body;
+                            if(res.success){
+                                this.checkCourseTable.show=true;
+                                this.oldCourseList=this.iterCourseList(res.data.dataList);      ##most
+                                this.pagination2.totalCount=res.data.totalCount;
+                                this.pagination2.currPage=res.data.pageNo;
+                            }else{
+                                self.$message({
+                                    message:res.msg,
+                                    type:'error'
+                                })
+                            }
+                        })
+            },
+            //遍历查看历史课程(过滤)
+            iterCourseList:function(courses){
+                var oldCourses=[];
+                courses.forEach(function(item,index){
+                    var oldCourse={};
+                    oldCourse.profitAllocation = (item.profitAllocation/100).toFixed(2);
+                    item = item.beautyCourse;
+                    oldCourse.id=item.id;
+                    oldCourse.updateTime=item.updateTime;
+                    oldCourse.title=item.title;
+                    oldCourse.lecturerId=item.lecturerId;
+                    oldCourse.courseDesc=item.courseDesc;
+                    oldCourse.coverPic = item.coverPic;
+                    oldCourse.approvalStatus=item.approvalStatus;
+                    oldCourse.rejectReason = item.rejectReason;
+                    oldCourse.showStartTime=item.showStartTime;
+                    oldCourse.showEndTime=item.showEndTime;
+                    oldCourse.createTime = item.createTime;
+                    oldCourse.subscribeCount=item.subscribeCount;
+                    oldCourse.subscribePayNum=  (item.subscribePayNum/100).toFixed(2);
+                    oldCourse.realStartTime=item.realStartTime;
+                    oldCourse.realEndTime=item.realEndTime;
+                    oldCourse.courseStatus=item.courseStatus;
+                    oldCourse.subscribe=item.subscribe;
+                    oldCourse.free=item.free;
+                    oldCourses.push(oldCourse);
+                })
+                return oldCourses;
+            },
+            //查看课程翻页
+            handleCheckChange:function (currentPage) {
+                this.checkCourseList.pageNo=currentPage;
+                //this.pagination2.pageNo = currentPage;
+                this.checkCourse(this.checkCourseList);
+            },
+
+            //取消资格
+            handleDelete: function(row) {
+                var self = this;
+                this.$msgbox({
+                    title: '提示',
+                    message: '您确定取消讲师资格？取消后不可恢复。',
+                    showCancelButton: true,
+                    cancelButtonText: '取消',
+                    confirmButtonText: '确定',
+                    beforeClose: function(action, instance, done) {
+                        action == 'confirm' ? self.deletePostRequest(row) : '';
+                        done();
+                    }
+                })
+            },
+
+            //取消资格请求
+            deletePostRequest:function(row){
+                var self=this;
+                this.$http.post('/beauty/lecturer/delete',{userId:row},{emulateJSON:true,timeout:20000})
+                        .then(function (res) {
+                            var res=res.body;
+                            if(res.success){
+                                self.searchPostRequest(this.formInline);
+                                self.$message({
+                                    message:res.msg,
+                                    type:'success'
+                                })
+                            }else{
+                                elf.$message({
+                                    message:res.msg,
+                                    type:'warning'
+                                })
+                            }
+                        }).catch(function(e){
+                    self.$message.erro('请求超时或系统错误！');
+                })
+
+            },
+            handleInputBlur:function (row,type) {                          //修改讲师信息(失焦事件)
+                var data={};
+                data.userId=row.userId;
+                if(type=='1'){
+                    var title=row.title.trim();
+                    if(title==row.checkTitle){
+                        row.checke1=true;
+                        return;
+                    }
+                    data.title=title;
+                }else{
+                    var introduce=row.introduce.trim();
+                    if(introduce==row.checkIntroduce){
+                        row.checke2=true;
+                        return;
+                    }
+                    data.introduce=introduce;
+                }
+                this.inputBlurRequest(data,row,type);
+            },
+            inputBlurRequest:function (data,row,type) {
+                this.$http.post('/beauty/lecturer/update',data,{emulateJSON:true,timeout:20000})
+                        .then(function(res){
+                            var res=res.body;
+                            if(res.success){
+                                this.$message({
+                                    message:res.msg,
+                                    type:'success'
+                                })
+                                if(type=='1'){
+                                    row.checkTitle=row.title;
+                                    row.checke1=true;
+                                }else{
+                                    row.checkIntroduce=row.introduce;
+                                    row.checke2=true;
+                                }
+                            }else{
+                                if(type=='1'){
+                                    row.title=row.checkTitle;
+                                    row.checke1=true;
+                                }else{
+                                    row.introduce=row.checkIntroduce;
+                                    row.checke2=true;
+                                }
+                                this.$message({
+                                    message:res.msg,
+                                    type:'warning'
+                                })
+                            }
+                        })
+
+            },
+            // 按顶部表单条件搜索
+            onSubmit: function () {
+                this.formInline.pageNo = 1;
+                delete  this.formInline.id;
+                if(this.formInline.registStartTime && this.formInline.registStartTime>=this.formInline.registEndTime){
+                    this.$message.error('注册起始时间不能大于注册结束时间');
+                    return;
+                }
+                if (this.formInline.registStartTime ){
+                    this.formInline.registStart = this.formInline.registStartTime;
+                }else if(this.formInline.registEndTime){
+                    this.formInline.registEnd = this.formInline.registEndTime;
+                }
+                this.searchPostRequest(this.formInline);
+            },
+            // 打开图片预览弹窗
+            openImgDialog:function (src) {
+                this.imgDialog.show=true;
+                this.imgDialog.src=src;
+            },
+            handleCoursePage:function () {                          ##跳转页面
+//                window.location.href='/beauty/course/index';
+                window.open('/beauty/course/index');
+            },
+            handleApproval:function (row) {
+              this.approvalShow=true;
+              this.approvalForm=row;
+            },
+            checkApproval:function () {
+                if(this.radio=='1'){
+                    this.handleApprovalPass(this.approvalForm);
+                }else {
+                    this.handleApprovalReject(this.approvalForm);
+                }
+            },
+            handleApprovalPass:function (row) {
+                var data={};
+                data.courseStatus=0; //通过申请
+                data.id=row.id;
+//                console.log(row);
+                this.approvalRequest(data);
+            },
+            handleApprovalReject:function (row) {
+                this.rejectReasonForm.id = row.id;
+                this.rejectReasonForm.lecturerId = row.lecturerId;
+                this.rejectReasonSubmit();
+            },
+            rejectReasonSubmit:function(){
+                if (this.rejectReasonForm.rejectReason == ''){
+                    this.$message.error("拒绝理由不能为空!");
+                    return;
+                }
+                this.rejectReasonForm.courseStatus = 3;
+                this.approvalRequest(this.rejectReasonForm);
+            },
+            approvalRequest:function (data) {
+                this.$http.post('/beauty/course/approval', data, {emulateJSON: true, timeout:100000})
+                        .then(function(res) {
+                            var res = res.body;
+                            if(res.success){
+                                this.$message({
+                                    message: res.msg,
+                                    type: 'success'
+                                });
+                                this.rejectReasonForm.rejectReason = '';
+                                this.approvalShow=false;
+                                this.searchPostRequest(this.formInline);
+                            }else{
+                                this.$message({
+                                    message: res.msg,
+                                    type: 'error'
+                                });
+                            }
+                        }).catch(function (e) {
+                    this.$message.error('请求超时或系统发生错误！');
+                })
+            },
+            handleCourseDelete:function (row) {
+                var data = {};
+                data.id = row.id;
+                this.$http.post('/beauty/course/deleteCourse', data, {emulateJSON: true, timeout:10000})
+                        .then(function(res) {
+                            var res = res.body;
+                            if(res.success){
+                                this.checkCourse(this.checkCourseList);
+                            }else{
+                                this.$message({
+                                    type:'error',
+                                    message:res.msg
+                                })
+                            }
+                        }).catch(function (e) {
+                    this.$message.error('请求超时或系统发生错误！');
+                })
+            },
+
+
+
+
+        },
+        filters: {
+            freeState: function(val) {
+                return  val ? '免费' : '收费';
+            },
+            subscribeStatus: function(val) {
+                return  val ? '已订阅' : '未订阅';
+            },
+            coursefilter: function (val) {
+                switch (val) {
+                    case 0:
+                        return '未开课';
+                    case 1:
+                        return '正在开课';
+                    case -1:
+                        return '已结课';
+                    case -2:
+                        return '课程失效';
+                    case 2:
+                        return '待申请审核';
+                    case 3:
+                        return '申请未通过';
+                    default:
+                        return '待申请审核';
+                }
+            }
+        }
+
+    })
+</script>
+</html>
