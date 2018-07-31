@@ -1,0 +1,44 @@
+1、过滤器:vue.js允许自定义过滤器,可被用作一些常见的文本格式化,可用在mustache插值和v-bind表达式,应放在js表达式的尾部
+格式:<td>{{msg|filter(arg,arg2)|test(msg)}}</td>		filters:{dataFormat(){}}  局部过滤器(私有) 就近原则
+Vue.filter('funName',function(msg,arg,arg2){})  全局过滤器  能调用多个过滤器
+2、func()  函数没参，在里面用到参数是undefined 
+3、键值修饰符   @keyup.enter=fun()   按enter会触发     keyCode 键盘码  @keyup.键盘码=fun()
+   自定义全局按键修饰符:Vue.config.keyCodes.f2=113;
+4、自定义指令(都以v-开头)
+   在定义时前缀不需要加v-，在调用时必须加v-,参数二是一个对象，对象身上有一些相关函数(钩子函数),可以在特定阶段执行相关操作
+   bind:function(){} //每当指令绑定到元素上时会立即执行bind函数,只执行一次，绑定的时候没插入到DOM中,调用focus()没用(样式)        
+   inserted：function(){} //元素插入到DOM时会执行,只执行一次 (JS行为)     
+   updated:function(){} //当VNode更新的时候回执行,多个    binding.name/value(计算数值)/expression(字符串)
+   定义全局指令:Vue.directive('focus',{
+		bind:function(el,binding){			   //每个函数的第一个参数,永远是el,表示被绑定了指令的元素(元素的JS对象),binding对象本身(其它看文档)
+			el.focus();
+		}
+		})          
+   directives:{'focus':{bind:function(el,binding){}}}  //私有(名字中不能识别大写字母)
+   
+   如果你只想写到bind/updated中,简写Vue.directive('color',function(el,binding){})
+5、Vue实例的生命周期：从vue实例创建、运行、销毁(三大类函数)期间伴随的各种各样的事件称为生命周期;
+   生命周期钩子=生命周期函数=生命周期事件 
+   beforeCreate(){ }  //这是我们第一个遇到的生命周期函数,表示实例别创建之前,会执行它,当执行它的时候,data和methods都没初始化
+   created(){ }        //这是第二个遇到的生命周期函数,data和methods都已经初始化好了
+   beforeMount(){ }     //这是第三个遇到的生命周期函数,表示模板已经在内存中编辑完成了,但是尚未把模板渲染到页面中去,页面中的元素并未别替换,还是一些模板
+   mounted(){ }         //表示内存中的模板已经真实挂载到了页面中,用户已近可以看到渲染好的页面了(执行完mounted实例被完全创建好了,没有其它操作实例就存在内存中)
+   beforeUpdated()   updated()  只有当data数据发生改变时才会触发
+  
+   
+   注意:(1)如果要通过某些插件操作页面上的DOM节点,最早要在mounted中进行
+		(2)只要执行了mounted,就表示整个vue实例已经初始化完毕了;此时组件已经脱离了创建阶段,进入到了运行阶段
+		(3)当执行beforeUpdated时,页面的数据是旧的,data是新的
+6、vue-resource实现get、post、jsonp请求，还可以使用 ‘axios’的第三方包
+   注意先后顺序 vue-resource依赖vue
+   get、jsonp  直接url参数就行了
+   this.$http.post(url, data, {emulateJSON:true, timeout:20000}).then(res=>{var res=res.body;})   主意:要在res.body中才有数据
+   emulateJSON提交内容为普通表单数据格式		data为对象参数
+7、JSONP的实现原理   
+(1)由于浏览器的安全性限制不允许AJax访问,协议不同、域名不同、端口号不同的数据接口,浏览器认为不安全
+(2)动态创建script标签,引进scr属性中指向数据接口的地址,script不存在跨域限制
+  JSON.stringify(data)   json转为字符串    JOSN.parse()  字符串转为json对象
+   
+   
+   
+   

@@ -1,0 +1,45 @@
+1、父组件向子组件传值
+子组件中默认访问不到父组件的值
+子组件应用中加入v-bind：自定义属性名="fathermsg",模板中通过props:['自定义属性名']接收  <mycom :myprop='fathermsg'></mycom>
+props只读,data能读能写
+2、子组件通过事件调用向父组件传值
+ <mycom @event="show"></mycom>  <template> <input @click="myfunc"></template>    子组件中myfunc(){this.$emit('event',arg1,arg2)} 后面的参数是event的参数
+3、本地存储localStorage (对字符串操作)
+   localStorage.setItem('cmts',JSON.stringify(list))				var get=localStorage.getItem('cmts');返回字符串  JSON.parse(get || []');
+4、使用ref操作DOM和组件(用法一样)
+  <h2 :ref="myh2"></h2>       vm实例中有$refs{myh2:''}  this.$refs.myh2.innerText
+  父组件可以通过ref获取子组件的数据和方法
+5、Vue路由学习
+   后端路由:把所以对应的URL地址都对应服务器上对应的资源
+   前端路由:主要通过URL中的hash(#号)来实现不同页面之间的切换,同时hash有一个特点:HTTP请求不会包括hash相关内容,
+			所以单页面程序中的页面主要是通过hash实现(不同组件引用)
+5.1、当你导入包后有了一个全局的构造函数(vue.js放在前面),提供了<router-view></router-view> <router-link to="/login" tag="span">占位符(用来代替组件)  以span渲染
+	var routerobj=new VueRouter({routes:[{path:'/login',component:login(组件模板对象)}]});   routes：路由匹配规则(规则对象)
+	router:routerobj   vm实例中引用
+	{path:'/',redirect:'/login'} 	重定向到login组件(默认展示login)
+5.2、设置选中路由高亮的两种方式
+    (1)style类名设置样式
+	(2)在routes规则同级中设置对象 linkActiveClass:'myactive'   (引用css插件)
+5.3、路由组件切换动画
+	在router-view中包裹transition		router:router 可以简写 router
+6、路由通过query传参       <vouter-link to='/login?id=1&name=zs'></vouter-link>
+   (1)this.$route.query.id    {{$route.query.name}}----{{$route.query.name}}
+   (2)this.$route.params.id   {path:'/login/:id'} (正则匹配)   <router-link to="login/12"></router-link>
+7、路由的嵌套(children)  在父路由对象中加入children对象
+	{
+	 path:'/fath',
+	 component:fath,
+	 children:[
+		{path:'login',component:login},  //没有斜杆,带斜杠以根目录请求
+		{path:'register',component:register}
+	  ]
+     }
+8、命名视图实现经典布局
+	<router-view name="header"><router-view>  <router-view name="main"><router-view>
+   {path:'login',components:{'header':header,'main':main}}
+9、数据监听   watch:{msg:function(newVal,oldVal){}}
+   路由监听   watch:{'$route.path':function(new,old){}}
+   属性计算   computed:{fullname:function(){return this.msg1+this.msg2}}   它会把下面定义函数的名称当作属性返回到DOM中(必须return,不能加(),内部数据发生改变也会重新调用该函数)
+10、methods、watch、computed三者的对比
+	computed  它会返回一个属性(当做属性来看的)      methods:业务逻辑     watch:监听数据的改变
+   

@@ -1,0 +1,56 @@
+1、this.$http.post(url, data, {emulateJSON:true, timeout:20000}).then(res=>{var res=res.body;})
+   主意:要在res.body中才有数据
+2、设置根域名:Vue.http.options.root='http://vue.studyit/'    后面路径不能带斜线 ai/study
+	emulateJSON的配置  Vue.http.options.emulateJSON=true;
+3、Vue中的动画
+   <transition></transition>         vue内部提供的元素,标签内的标签     
+   .v-enter 进入之前元素的状态       .v-leave-to 是动画离开之后的终止状态,此时动画以结束
+   .v-enter-active 入场动画的时间段  .v-leave-active{transition all 0.4s ease;} 离场动画的时间段  
+   <transition name="my" appear tag="ul"></transition>  后面的类名改成my前缀,用来区别不同的动画(ul渲染的效果)
+   引用第三方类库:<transition enter-active-class="animated bounceIn" leave-active-class="animated bounceOut" :duration="{enter:200,leave:400}"></transition>
+   钩子函数实现半场动画  Vue把一个完整的动画分成两部分,我们使用flag标识符,flag由true->false(上半部分,对应的钩子函数)  false->true(下半部分)
+   想让它没有后半场动画,在after-enter钩子函数中  对flag取非
+   
+   如果是v-for渲染的列表要使用transition-group
+   v-move{position:absolute;}   v-leave-active{transition all 0.4s;}   渐渐变动
+   给transition元素加appear实现入场效果
+4、组件:组件的出现就是为了拆分vue实例的代码量,能够让我们以不同的组件,来划分不同的功能模块;
+   组件化和模块化的区别:模块化是从代码逻辑的角度划分的(方便分层开发,保证每个模块职能单一 ),组件化是从UI界面划分的(方便UI组件的重用)
+   (1)方式一:var com=Vue.extend({
+				template:"<h3>这是我们创建的第一个组件</h3>"
+			})
+			Vue.component("myCom",com);
+			<my-com></my-com>
+			简写:Vue.component('myCom',Vue.extend({
+				template:'';
+			))
+   (2)方式二:Vue.component('myCom',{
+		template:'';
+	})
+   (3)方式三:
+		<template id="tmpl">
+			<div>
+				<h1>这是在控制区外部HTML中定义组件,好用</h1>
+			</div>
+		</template>	
+	   Vue.component('myCom',{
+			template:'#tmpl';
+		})
+   
+   (4)注意:无论那种方式,template中只能有一个根元素
+5、定义私有属性      filters:{},directives:{},components:{'myCom':com}
+6、组件中的data和methods
+   组件的data必须为function(方法),且返回值为对象
+   原因:引用多个组件时每个data都是独享的,每个组件的数据为内部自己的,
+   实例:  Vue.component('myCom',{
+		  template:'#tmpl',
+		  data(){
+			return {
+			  msg:'小艾'
+			}
+		  }
+		})
+7、组件切换使用v-if v-else
+   组件切换二 <component :is="'组件名'"></component>    Vue内部的组件元素标签
+   <transition>  <component> <transition-group> <template>
+   组件切换动画 直接在   <component>包裹transition   mode="out-in"  
