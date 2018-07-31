@@ -1,0 +1,46 @@
+1、nrm的安装与使用
+作用:提供了一些最常用的NPM包镜像地址,能够让我们快速地切换安装包时候的服务器地址;
+镜像:由于网络原因访问不到国外的NPM服务器,我们可以在国内创建一个和官网完全一样的NPM服务器,只不过数据都是从人家那拿过来的,使用方式一样
+npm i nrm -g 全局安装nrm包       nrm ls 查看当前的镜像地址和所以的镜像源地址       nrm use taobao 或 npm use npm切换不同的镜像地址
+注意:nrm知识提供几个常用的下载包的URL地址，但是我们每次装包的时候使用的装包工具还是npm
+2、webpack：是一个前端项目构建工具,他是基于Node.js开发的一个前端工具,基于整个项目进行构建的,可以实现资源的合并、打包、压缩、混淆等多功能
+   安装:(way1)npm i webpack -g 全局使用    	(way2)在项目运行'npm i webpack --save-dev'安装到项目依赖中
+   npm init -y    用来初始化生成一个新的 package.json 文件
+   npm i jquery -S 你可以不用输入 npm run start 只需输入npm start      -D  -save-dev  保存到package.json的devDependencies 里
+3、import *** from *** 是ES6中导入模块的方式   import $ form 'jquery'
+4、命令:webpack entryname(文件起始名)  outputname(文件输出名)  一般不用
+   新建webpack.config.js,在这里面添加配置,向外暴露一个配置对象
+   const path=require('path');   module.exports={entry:path.join(dirname__,''),output:{path:path.join(dirname__,''),filename:''}}
+   命令:webpack  没有指定入口、出口时会找到配置文件,在去解析配置对象,在进行打包构建
+5、webpack-dev-server的基本使用,实现自动打包编译功能
+    (1)npm i webpack-dev-server -D 安装到项目的本地开发依赖
+	(2)webpack-dev-server命令使用
+	(3)由于是本地安装的,不能直接运行,要在package.json的scripts中添加 dev:"webpack-dev-server --open --port 3000 contentBase src --hot"
+		open 自动打开浏览器  port设置端口 contentBase指定打开路径  hot加载补丁 
+	   第二种方式是在confige.js中配置(麻烦)
+	   devServer：{
+		open:true,port:3000,contentBase:'src',hot:'src'
+	   },plugins[new webpack.HotModuleReplacementPlugin()]
+	   //启用热更新
+	   const webpack=require('webpack');
+	(4)想要正常运行还得在本地项目中安装webpack   npm i webpack -D
+	(5)npm run dev 使用
+	注意:使用webpack-dev-server生成的文件在根路径 <script src='/bundle.js'></script>,没有存放到实际的物理磁盘中(虚拟形式),而是托管在跟目录中(切换速度快)
+6、html-webpack-plugin的基本使用
+	命令npm i html-webpack-plugin  只要是插件都得放到 plugins节点中去   const htmlWebpackPlugin=require('html-webpack-plugin');
+	作用:(1)自动在内存中根据指定页面生成一个内存页面
+		 (2)自动把打包好的js文件添加到页面中
+    plugins:[new htmlWebpackPlugin({template:path.join(dirname__,'./src/index.html'),filename:'index.html'})] (名字必须一致)
+7、loder-配置处理css样式表的第三方loder
+	webpack默认打包JS文件,处理其他类型的文件,需要手动安装其他一些合适的loader加载器
+	处理css文件的步骤:(1) cnmp i style-loader css-loader -D
+					  (2)webpack.config.js新增一个moddule对象节点,有个rules:[]第三方文件的匹配和规则
+	module:{rules:[{test:'/\.css$/',use:['style-loader','css-loader']}]}  //从右到左
+8、处理less(scss)文件   sass-loader  node-sass
+	cnpm i less-loader -D  less
+	module:{rules:[{test:'/\.less$/',use:['style-loader','css-loader','less-loader']}]}  //从右到左
+9、默认情况下,webpack无法处理css文件中的图片url或者字体库
+	cnpm i url-loader file-loader -D
+	处理图片:{test:'/\.(jpg|png|jpeg|bmp)$/',use:'url-loader?limit=7631'}  传参   这个参数表示当它大于该值时,会把图片编码(base64字符串),否则不变(中文不变) 
+	limite=1234&name=[hash:8]-[name].[ext] 还是原来的名字  hash属性能分别不同包下的同名图片
+	处理图标

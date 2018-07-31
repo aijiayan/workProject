@@ -1,0 +1,37 @@
+1、<p v-cloak></p>:解决加载时出现{{msg}}内容(插值表达式闪烁问题)    [v-cloak]{display:none；}  属性选择器
+   v-text="msg" 也能解决闪烁问题	插值表达式能随意添加内容,v-text会覆盖整个内容	
+   v-html="msg" 能解析html内容	
+   v-bind:title="mytitle+'123'"	使用v-bind告诉标签绑定的是一个变量(vue中提供的用于绑定属性的指令) 变量+字符串  缩写:
+2、v-on:click="alert" 事件绑定   会把alert当成变量     缩写@     加括号传参   
+   @click.stop=""   阻止冒泡     <a href="" @click.prevent=""> 阻止默认    .capture事件捕获(从外到里)
+   .self 只有点击自己才会执行,冒泡或者捕获不能触发      .once 只会触发一次
+   .stop和.self的区别   一个只触发自己,一个是阻止所以冒泡
+3、v-model：只有它能双向绑定数据(表单元素)
+   input(radio,text,address,email...)  select   checkbox   textarea
+   eval(str)  解析字符串,有运算符会直接返回结果
+4、使用class样式
+  (1)使用数组  :class="['red','thin']"   没加单引号会被识别成变量
+  (2)三元表达式  :class="['red','thin',falg?'biger':'blue']"   
+  (3)数组中使用对象 :class="['red','thin',{'active':true}]"   
+  (4)直接使用对象  :class="{big:true,thin:true,bloder:true}"   可以不带引号
+5、使用行内样式
+  (1)直接在元素上写   <p :style="{color:'red','font-size':'12px'}"></p>
+  (2)通过引用data对象
+  (3)应用数组  <p :style="[obj1,obj2]"></p>
+6、v-for和key属性				
+   arr.foreach((item,i)=>{})			arr.push()从后面添加    arr.unshift()从前面添加
+   普通数组/对象数组:<li v-for="(item,i) in items">{{item}}</li>   items可以是返回结果为数组的函数
+   循环对象：<p v-for="(val,key,i) in obj">{{key}}----{{val}}----{{i}}</p>
+   循环数字:<p v-for="count in 10">{{count}}<p>    从1开始
+   在vue2.2+版本中 在组件中v-for使用key是必须的     <li v-for="(item,i) in items" :key="item.id">{{item}}</li>(string/number类型,唯一标识)
+7、v-if和v-show
+   v-if的特点是每次都会重新DOM删除或添加元素(切换性能消耗)     
+   v-show只是切换元素的display:none(有较高的初始渲染消耗)
+8、数组操作   
+	arrs.some((item,index)=>{ return true;})    返回boolean值   filter  返回新数组  
+	arr.push()     arr.unshift()    arr.splice(1,1);  第一个参数index,第二个删除个数
+	arr.findindex(item=>{if(item.id==id) return true;})
+	str.indexOf('艾')！=-1;   包含该字段   空字符串为0   str.replace(/单纯/g,'邪恶'); 文本替换
+
+  
+  
